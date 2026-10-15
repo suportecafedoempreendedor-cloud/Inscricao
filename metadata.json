@@ -1,0 +1,8 @@
+{
+  "name": "Café do Empreendedor - 79.ª Edição Angola",
+  "description": "Plataforma oficial da 79.ª Edição do Café do Empreendedor em Angola. Inscrições, bilhetes digitais, conferência empresarial, pitch de negócios, expositores, patrocínios e networking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
