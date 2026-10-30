@@ -20,6 +20,7 @@ import {
   Loader2,
   Copy,
   Check,
+  Shirt,
 } from 'lucide-react';
 import { eventStore } from '../services/store';
 
@@ -133,19 +134,40 @@ export const TicketDeliveryChannelModal: React.FC<TicketDeliveryChannelModalProp
           </button>
         </div>
 
+        {/* Visually Distinct Section with Icon: DRESS CODE OBRIGATÓRIO */}
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#032877] via-[#0152D9] to-[#0173EF] border-2 border-[#F8D21C] shadow-lg flex items-center space-x-3.5">
+          <div className="w-10 h-10 rounded-xl bg-[#F8D21C] text-[#032877] flex items-center justify-center shrink-0 shadow-md">
+            <Shirt className="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div className="space-y-0.5 min-w-0 flex-1">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#F8D21C] text-[#032877]">
+                OBRIGATÓRIO
+              </span>
+              <span className="text-[11px] font-bold text-blue-100">79.ª Edição · Laço Azul</span>
+            </div>
+            <p className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
+              DRESS CODE: VESTIR AZUL — OBRIGATÓRIO
+            </p>
+            <p className="text-[11px] text-blue-100 leading-tight">
+              Apresente-se no dia 27 de novembro de 2026 às 08h30 na Mediateca Zé Dú vestido de azul em prol do Mês da Saúde Mental.
+            </p>
+          </div>
+        </div>
+
         {/* Ticket Summary Pill */}
-        <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 rounded-2xl bg-[#032877]/80 border border-[#0173EF]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <div>
-            <p className="text-[11px] text-zinc-400 font-medium">Titular do Ingresso</p>
-            <p className="font-bold text-white text-sm">{registration.fullName}</p>
-            <p className="text-zinc-400 text-[11px]">
+            <p className="text-[11px] text-zinc-300 font-medium">Titular do Ingresso</p>
+            <p className="font-black text-white text-sm">{registration.fullName}</p>
+            <p className="text-[#65A6F4] text-[11px]">
               {registration.company} · {tier.name}
             </p>
           </div>
 
           <div className="sm:text-right font-mono space-y-0.5">
-            <p className="text-[10px] text-zinc-500 uppercase">Código Único</p>
-            <span className="inline-block px-2.5 py-1 rounded bg-[#BE123C]/20 border border-[#BE123C]/50 text-white font-black text-xs">
+            <p className="text-[10px] text-zinc-300 uppercase font-semibold">Código Único</p>
+            <span className="inline-block px-3 py-1 rounded-xl bg-[#0152D9] border border-[#0173EF] text-[#F8D21C] font-black text-xs shadow">
               {registration.ticketCode}
             </span>
           </div>
@@ -381,11 +403,11 @@ export const TicketDeliveryChannelModal: React.FC<TicketDeliveryChannelModalProp
                 onClose();
                 onOpenTicketPass();
               }}
-              className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-600 via-rose-600 to-[#BE123C] hover:opacity-95 text-white font-bold rounded-xl flex items-center justify-center space-x-2 shadow cursor-pointer transition-all"
+              className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#0152D9] via-[#0173EF] to-[#0152D9] hover:from-[#0173EF] hover:to-[#0152D9] text-white font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-[#0152D9]/40 cursor-pointer transition-all border border-[#65A6F4]/40"
             >
-              <Ticket className="w-4 h-4 text-amber-200" />
+              <Ticket className="w-4 h-4 text-[#F8D21C]" />
               <span>Ver & Descarregar Ingresso Agora</span>
-              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              <ArrowRight className="w-3.5 h-3.5 ml-1 text-[#F8D21C]" />
             </button>
           </div>
         </div>

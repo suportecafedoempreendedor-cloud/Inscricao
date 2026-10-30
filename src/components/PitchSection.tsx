@@ -28,8 +28,8 @@ export const PitchSection: React.FC<PitchSectionProps> = ({
   onOpenPitchApplication,
   onOpenJuryScoring,
 }) => {
-  // Live Timer State (3 minutes = 180 seconds)
-  const PITCH_DURATION = 180;
+  // Live Timer State (5 minutes = 300 seconds matching Section 11)
+  const PITCH_DURATION = 300;
   const [timeLeft, setTimeLeft] = useState(PITCH_DURATION);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<PitchCandidate | null>(
@@ -67,27 +67,30 @@ export const PitchSection: React.FC<PitchSectionProps> = ({
   return (
     <section id="pitch" className="py-20 bg-zinc-950/70 border-t border-b border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-        {/* Header */}
+        {/* Header strictly matching Section 11 */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center space-x-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
+          <div className="space-y-2 max-w-3xl">
+            <div className="inline-flex items-center space-x-2 text-xs font-black text-amber-400 uppercase tracking-widest">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Pitch Empresarial 79.ª Edição</span>
+              <span>PITCH EMPRESARIAL · 79.ª EDIÇÃO</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
-              O próximo grande negócio pode nascer aqui.
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+              A SUA IDEIA PODE SER O PRÓXIMO GRANDE NEGÓCIO.
             </h2>
-            <p className="text-zinc-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-              O palco onde ideias visionárias encontram investidores, parceiros comerciais e validação de mercado em tempo real. Apresentações dinâmicas de 3 minutos perante um júri executivo.
+            <p className="text-zinc-300 text-sm sm:text-base leading-relaxed">
+              Há ideias que precisam de uma oportunidade para ganhar dimensão. O Pitch Empresarial é o momento de dar voz a projectos inovadores, apresentar soluções e criar ligações com pessoas capazes de contribuir para o crescimento dos negócios.
+            </p>
+            <p className="text-xs text-amber-400 font-bold">
+              ⏱️ 5 minutos para apresentar a sua ideia. Uma oportunidade para conquistar atenção, parceiros e novas perspectivas.
             </p>
           </div>
 
           <button
             onClick={onOpenPitchApplication}
-            className="self-start md:self-end px-5 py-3 text-xs font-bold text-white rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-[#BE123C] hover:opacity-95 shadow-lg shadow-amber-950/30 transition-all flex items-center space-x-2"
+            className="self-start md:self-end px-7 py-4 text-xs font-black uppercase tracking-wider text-white rounded-xl bg-gradient-to-r from-[#DC1037] via-[#B20D64] to-[#75116E] hover:from-[#ED3038] hover:to-[#B20D64] shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer border border-rose-400/30"
           >
-            <PlusCircle className="w-4 h-4 text-white" />
-            <span>Candidatar Meu Negócio ao Pitch</span>
+            <PlusCircle className="w-4 h-4 text-amber-300" />
+            <span>INSCREVER O MEU PROJECTO</span>
           </button>
         </div>
 

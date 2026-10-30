@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Search,
   QrCode,
+  MapPin,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -40,14 +41,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems = [
     { id: 'inicio', label: 'Início', icon: Sparkles },
+    { id: 'inscricoes', label: 'Inscrições & Pagamento', icon: Ticket },
+    { id: 'localizacao', label: 'Localização', icon: MapPin },
     { id: 'sobre', label: 'Sobre', icon: Layers },
     { id: 'conferencia', label: 'Conferência', icon: Briefcase },
     { id: 'agenda', label: 'Agenda', icon: Calendar },
     { id: 'certificados', label: 'Certificados', icon: Award },
     { id: 'expositores', label: 'Expositores', icon: Layers },
-    { id: 'pitch', label: 'Pitch Empresarial', icon: Sparkles },
-    { id: 'estrategia', label: 'Sala de Estratégia', icon: Users },
-    { id: 'networking', label: 'Networking', icon: Users },
+    { id: 'pitch', label: 'Pitch', icon: Sparkles },
     { id: 'contactos', label: 'Contactos', icon: Phone },
   ];
 

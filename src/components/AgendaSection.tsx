@@ -41,9 +41,8 @@ export const AgendaSection: React.FC<AgendaSectionProps> = ({
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchTitle = session.title.toLowerCase().includes(q);
-      const matchSpeaker = session.speakerName.toLowerCase().includes(q);
       const matchDesc = session.description.toLowerCase().includes(q);
-      return matchTitle || matchSpeaker || matchDesc;
+      return matchTitle || matchDesc;
     }
 
     return true;
@@ -113,7 +112,7 @@ export const AgendaSection: React.FC<AgendaSectionProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Pesquisar orador ou tema..."
+              placeholder="Pesquisar painel ou tema..."
               className="w-full bg-zinc-950 border border-zinc-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#BE123C]"
             />
           </div>
@@ -169,11 +168,9 @@ export const AgendaSection: React.FC<AgendaSectionProps> = ({
                       {session.title}
                     </h3>
 
-                    <div className="flex items-center space-x-2 text-xs text-zinc-300">
-                      <User className="w-3.5 h-3.5 text-[#BE123C] shrink-0" />
-                      <span>
-                        <strong className="text-white">{session.speakerName}</strong> · {session.speakerRole} ({session.speakerCompany})
-                      </span>
+                    <div className="flex items-center space-x-2 text-xs text-amber-300/90 font-medium">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>Mesa Redonda & Debate Aplicado ao Mercado</span>
                     </div>
 
                     <p className="text-xs text-zinc-400 leading-relaxed pt-1">

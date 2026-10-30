@@ -41,17 +41,37 @@ export const StrategyRoomSection: React.FC<StrategyRoomSectionProps> = ({
   return (
     <section id="estrategia" className="py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Section Header */}
+        {/* Section Header strictly matching Section 12 */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
-            Consultoria Executiva One-on-One
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-            Sala de Estratégia do Café do Empreendedor
+          <span className="text-xs font-black text-amber-400 uppercase tracking-widest">
+            SALA DE ESTRATÉGIA DE NEGÓCIOS
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+            PARE DE APENAS PENSAR NO CRESCIMENTO.
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-[#DC1037] to-[#B20D64]">
+              COMECE A PLANEAR O PRÓXIMO PASSO.
+            </span>
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base">
-            Sessões privadas de 30 minutos com consultores e mentores experientes para destrinçar os nós críticos do seu negócio (Gestão, Finanças, RH e Escala).
+          <p className="text-zinc-300 text-sm sm:text-base leading-relaxed">
+            A Sala de Estratégia de Negócios é o ambiente dedicado a empresários e empreendedores que procuram conhecimento aplicado, troca de experiências e perspectivas estratégicas para os seus desafios.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+            {[
+              'Diagnóstico Empresarial',
+              'Mentoria e Aconselhamento',
+              'Estratégias Comerciais',
+              'Gestão e Crescimento',
+              'Networking Executivo',
+            ].map((exp, i) => (
+              <span
+                key={i}
+                className="px-3 py-1 rounded-full text-[11px] font-bold bg-white/10 border border-white/10 text-amber-300"
+              >
+                ✓ {exp}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Mentors Grid */}

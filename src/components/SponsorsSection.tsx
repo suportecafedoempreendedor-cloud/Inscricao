@@ -44,26 +44,26 @@ export const SponsorsSection: React.FC<SponsorsSectionProps> = ({
   return (
     <section id="patrocinadores" className="py-20 bg-zinc-950/80 border-t border-b border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Header */}
+        {/* Header strictly matching Section 15 */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
-              Marcas & Alianças Institucionais
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
-              Patrocinadores e Parceiros
+          <div className="space-y-2 max-w-2xl">
+            <span className="text-xs font-black text-amber-400 uppercase tracking-widest">
+              PARCEIROS & ALIANÇAS ESTRATÉGICAS
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+              MARCAS QUE ACREDITAM NO PODER DO EMPREENDEDORISMO.
             </h2>
-            <p className="text-sm text-zinc-400 mt-1 max-w-xl">
-              Instituições e empresas que apoiam activamente a consolidação do ecossistema empreendedor em Angola.
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Instituições e empresas líderes que apoiam activamente a consolidação do ecossistema empreendedor e a criação de riqueza sustentável em Angola.
             </p>
           </div>
 
           <button
             onClick={onOpenSponsorModal}
-            className="self-start md:self-end px-5 py-3 text-xs font-bold text-white rounded-xl bg-gradient-to-r from-purple-800 to-[#BE123C] hover:opacity-95 shadow-lg shadow-purple-950/40 transition-all flex items-center space-x-2"
+            className="self-start md:self-end px-7 py-4 text-xs font-black uppercase tracking-wider text-white rounded-xl bg-gradient-to-r from-[#DC1037] via-[#B20D64] to-[#75116E] hover:from-[#ED3038] hover:to-[#B20D64] shadow-xl shadow-purple-950/40 transition-all hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer border border-rose-400/30"
           >
             <Handshake className="w-4 h-4 text-amber-300" />
-            <span>Tornar-se Patrocinador</span>
+            <span>TORNAR-SE PARCEIRO</span>
           </button>
         </div>
 

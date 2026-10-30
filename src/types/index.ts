@@ -1,4 +1,4 @@
-export type PaymentStatus = 'PENDENTE' | 'CONFIRMADO' | 'CANCELADO';
+export type PaymentStatus = 'PENDENTE' | 'EM_VERIFICACAO' | 'CONFIRMADO' | 'CANCELADO';
 export type CheckInStatus = 'PENDENTE' | 'CHECKED_IN';
 export type PaymentMethod = 'MULTICAIXA_EXPRESS' | 'REFERENCIA_MULTICAIXA' | 'TRANSFERENCIA_BANCARIA' | 'NO_LOCAL';
 
@@ -6,6 +6,9 @@ export interface EventSettings {
   edition: string;
   title: string;
   tagline: string;
+  themeTitle: string;
+  dressCode: string;
+  symbolicElement: string;
   description: string;
   eventDateText: string;
   eventTimeText: string;
@@ -18,10 +21,14 @@ export interface EventSettings {
   organizerWhatsApp: string;
   registrationOpen: boolean;
   statusBadge: string;
+  officialIban: string;
+  officialExpressNumber: string;
   ibanBFA: string;
   ibanBAI: string;
   multicaixaEntidade: string;
   heroAnnouncement: string;
+  // Capacity & Vacancy Control
+  totalEventCapacity: number;
   // Certificate Policy Config
   requireCheckInForCertificate: boolean;
   conferenceCertificatePriceAoa: number;
@@ -117,9 +124,12 @@ export interface Registration {
   fullName: string;
   email: string;
   phone: string;
+  whatsapp?: string;
   company: string;
   jobTitle: string;
+  areaOfExpertise?: string;
   nif?: string;
+  hasReadEventInfo?: boolean;
   amountAoa: number;
   paymentMethod: PaymentMethod;
   paymentReference: string;
@@ -138,6 +148,33 @@ export interface Registration {
   conferenceCertificatePaymentRef?: string;
   // Dispatch history
   dispatches?: TicketDispatch[];
+  // Automatic Email Notification to gdangola12@gmail.com
+  emailNotificationStatus?: 'ENVIADO' | 'PENDENTE' | 'FALHOU';
+  emailNotificationSentAt?: string;
+  emailNotificationError?: string;
+}
+
+export interface CapacityStats {
+  totalCapacity: number;
+  registeredCount: number;
+  remainingVacancies: number;
+  occupancyPercentage: number;
+  isSoldOut: boolean;
+}
+
+export interface PaymentProofSubmission {
+  id: string;
+  fullName: string;
+  phone: string;
+  amountAoa: number;
+  paymentMethod: 'TRANSFERENCIA_BANCARIA' | 'MULTICAIXA_EXPRESS';
+  proofFileUrl: string;
+  proofFileName: string;
+  notes?: string;
+  submittedAt: string;
+  status: 'PENDENTE' | 'CONFIRMADO' | 'REJEITADO';
+  adminNotes?: string;
+  registrationId?: string;
 }
 
 export interface Certificate {
@@ -193,6 +230,8 @@ export interface AgendaSession {
   isKeynote?: boolean;
 }
 
+export type OpportunityStatus = 'Pendente' | 'Em análise' | 'Aprovado' | 'Recusado';
+
 export interface Exhibitor {
   id: string;
   companyName: string;
@@ -204,7 +243,7 @@ export interface Exhibitor {
   email: string;
   phone: string;
   products: string[];
-  status: 'APROVADO' | 'PENDENTE' | 'REJEITADO';
+  status: OpportunityStatus | 'APROVADO' | 'PENDENTE' | 'REJEITADO';
   featured?: boolean;
 }
 
@@ -233,11 +272,25 @@ export interface PitchCandidate {
   investmentRequestedAoa: number;
   pitchDeckUrl?: string;
   videoUrl?: string;
-  status: 'PENDENTE' | 'SELECIONADO' | 'APRESENTADO' | 'VENCEDOR' | 'REJEITADO';
+  status: OpportunityStatus | 'PENDENTE' | 'SELECIONADO' | 'APRESENTADO' | 'VENCEDOR' | 'REJEITADO';
   presentationOrder?: number;
   evaluations: PitchEvaluation[];
   averageScore: number;
   rank?: number;
+}
+
+export interface SponsorshipRequest {
+  id: string;
+  companyName: string;
+  representativeName: string;
+  role: string;
+  phone: string;
+  email: string;
+  tier: 'Diamante' | 'Ouro' | 'Prata' | 'Bronze' | 'Apoio Institucional' | 'Outro';
+  message: string;
+  status: OpportunityStatus;
+  submittedAt: string;
+  notes?: string;
 }
 
 export interface Sponsor {

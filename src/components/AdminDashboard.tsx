@@ -12,6 +12,9 @@ import {
   TicketDispatch,
   CheckInRecord,
   CapacityAlert,
+  OpportunityStatus,
+  SponsorshipRequest,
+  PaymentProofSubmission,
 } from '../types';
 import { eventStore } from '../services/store';
 import {
@@ -57,6 +60,10 @@ import {
   Eye,
   Flame,
   CheckCheck,
+  TrendingUp,
+  Sparkles,
+  MapPin,
+  Navigation,
 } from 'lucide-react';
 import { CapacitySummary } from './CapacitySummary';
 import { QrCameraScanner } from './QrCameraScanner';
@@ -77,11 +84,21 @@ interface AdminDashboardProps {
   pitchCandidates: PitchCandidate[];
   agenda: AgendaSession[];
   auditLogs: AuditLog[];
+  sponsorshipRequests?: SponsorshipRequest[];
   onUpdateSettings: (settings: Partial<EventSettings>) => void;
   onUpdateTier: (tier: TicketTier) => void;
   onUpdateRegistrationStatus: (id: string, status: Registration['status'], notes?: string) => void;
   onValidateCheckIn: (code: string) => { success: boolean; message: string; registration?: Registration };
-  onUpdateExhibitorStatus: (id: string, status: 'APROVADO' | 'REJEITADO', stand?: string) => void;
+  onUpdateExhibitorStatus: (
+    id: string,
+    status: OpportunityStatus | 'APROVADO' | 'PENDENTE' | 'REJEITADO',
+    stand?: string
+  ) => void;
+  onUpdatePitchStatus?: (
+    id: string,
+    status: OpportunityStatus | 'PENDENTE' | 'SELECIONADO' | 'APRESENTADO' | 'VENCEDOR' | 'REJEITADO'
+  ) => void;
+  onUpdateSponsorshipStatus?: (id: string, status: OpportunityStatus, notes?: string) => void;
   onAddAgendaSession: (session: Omit<AgendaSession, 'id'>) => void;
   onDeleteAgendaSession: (id: string) => void;
   onViewCertificate: (cert: Certificate) => void;
@@ -93,6 +110,25 @@ interface AdminDashboardProps {
   onClose: () => void;
 }
 
+export type AdminTab =
+  | 'dashboard'
+  | 'inscricoes'
+  | 'participantes'
+  | 'ingressos'
+  | 'checkin'
+  | 'certificados'
+  | 'pagamentos'
+  | 'stands'
+  | 'pitch'
+  | 'patrocinios'
+  | 'configuracoes'
+  | 'capacity'
+  | 'certificates'
+  | 'staff'
+  | 'dispatches'
+  | 'agenda'
+  | 'audit';
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   settings,
   ticketTiers,
@@ -102,11 +138,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   pitchCandidates,
   agenda,
   auditLogs,
+  sponsorshipRequests: initialSponsorshipProps,
   onUpdateSettings,
   onUpdateTier,
   onUpdateRegistrationStatus,
   onValidateCheckIn,
   onUpdateExhibitorStatus,
+  onUpdatePitchStatus,
+  onUpdateSponsorshipStatus,
   onAddAgendaSession,
   onDeleteAgendaSession,
   onViewCertificate,
@@ -117,21 +156,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onReissueCertificate,
   onClose,
 }) => {
-  // Tabs
-  const [activeTab, setActiveTab] = useState<
-    | 'overview'
-    | 'capacity'
-    | 'certificates'
-    | 'checkin'
-    | 'staff'
-    | 'dispatches'
-    | 'registrations'
-    | 'exhibitors'
-    | 'pitch'
-    | 'agenda'
-    | 'settings'
-    | 'audit'
-  >('overview');
+  // 11 Official Sections strictly matching user guidelines
+  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+
+  // Sponsorship requests state
+  const [sponsorshipList, setSponsorshipList] = useState<SponsorshipRequest[]>(() =>
+    initialSponsorshipProps || eventStore.getSponsorshipRequests()
+  );
 
   // Staff and Dispatches state
   const [staffUsers, setStaffUsers] = useState<StaffUser[]>(() => eventStore.getStaffUsers());
@@ -188,10 +219,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [previewEmailAlert, setPreviewEmailAlert] = useState<CapacityAlert | null>(null);
   const [alertFeedbackMsg, setAlertFeedbackMsg] = useState<string | null>(null);
 
+  // Payment Proof Submissions state (Prompt Section 3 & 4)
+  const [paymentProofs, setPaymentProofs] = useState<PaymentProofSubmission[]>(() =>
+    eventStore.getPaymentProofSubmissions()
+  );
+  const [previewProofItem, setPreviewProofItem] = useState<PaymentProofSubmission | null>(null);
+  const [proofFilterStatus, setProofFilterStatus] = useState<string>('todos');
+  const [proofSearch, setProofSearch] = useState<string>('');
+
   // Auto-evaluate capacity whenever registrations or ticketTiers update
   useEffect(() => {
     eventStore.checkAndTriggerCapacityAlerts();
     setCapacityAlerts(eventStore.getCapacityAlerts());
+    setPaymentProofs(eventStore.getPaymentProofSubmissions());
   }, [registrations, ticketTiers]);
 
   const activeAlerts = capacityAlerts.filter((a) => a.status === 'ACTIVO');
@@ -369,21 +409,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs strictly matching Prompt Section 5 */}
         <div className="bg-zinc-900/60 border-b border-zinc-800/80 px-4 flex items-center space-x-1 overflow-x-auto scrollbar-none shrink-0 py-2">
           {[
-            { id: 'overview', label: 'Visão Geral & KPIs', icon: Activity },
-            { id: 'capacity', label: 'Resumo de Capacidade', icon: Sliders },
-            { id: 'checkin', label: 'Portaria & Validador', icon: QrCode },
-            { id: 'staff', label: 'Equipa de Portaria', icon: UserCheck },
-            { id: 'dispatches', label: 'Envios de Ingressos', icon: Send },
-            { id: 'registrations', label: 'Participantes & Inscrições', icon: Users },
-            { id: 'certificates', label: 'Gestão de Certificados', icon: Award },
-            { id: 'exhibitors', label: 'Gestão de Expositores', icon: Store },
-            { id: 'pitch', label: 'Gestão do Pitch & Júri', icon: Award },
-            { id: 'agenda', label: 'Gestão da Agenda', icon: Calendar },
-            { id: 'settings', label: 'Definições do Evento', icon: Settings },
-            { id: 'audit', label: 'Auditoria de Ações', icon: Layers },
+            { id: 'dashboard', label: 'Dashboard', icon: Activity },
+            { id: 'inscricoes', label: 'Inscrições', icon: FileCheck },
+            { id: 'participantes', label: 'Participantes', icon: Users },
+            { id: 'ingressos', label: 'Ingressos', icon: Ticket },
+            { id: 'checkin', label: 'Validação de QR Code', icon: QrCode },
+            { id: 'certificados', label: 'Certificados', icon: Award },
+            { id: 'pagamentos', label: 'Pagamentos', icon: DollarSign },
+            { id: 'stands', label: 'Reservas de Stands', icon: Store },
+            { id: 'pitch', label: 'Candidaturas de Pitch', icon: TrendingUp },
+            { id: 'patrocinios', label: 'Patrocínios', icon: Sparkles },
+            { id: 'configuracoes', label: 'Configurações', icon: Settings },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -481,8 +520,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB: OVERVIEW & KPIS */}
-          {activeTab === 'overview' && (
+          {/* TAB: DASHBOARD & KPIS */}
+          {(activeTab === 'dashboard' || (activeTab as any) === 'overview') && (
             <div className="space-y-6">
               {/* Stat Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -602,8 +641,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB: CERTIFICATES MANAGEMENT (NEW MANDATORY MODULE) */}
-          {activeTab === 'certificates' && (
+          {/* TAB: CERTIFICATES MANAGEMENT */}
+          {(activeTab === 'certificados' || (activeTab as any) === 'certificates') && (
             <div className="space-y-6">
               {/* Specific Certificate KPIs */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -721,7 +760,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <div className="text-[11px] text-zinc-400 font-normal">{c.companyName}</div>
                           </td>
                           <td className="p-3 text-amber-400 font-bold">{c.ticketCode}</td>
-                          <td className="p-3 font-sans text-zinc-300">{c.packageName}</td>
+                          <td className="p-3 font-sans">
+                            {c.type === 'CAFE_EXPERIENCE' ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm">
+                                <span>🏆 Café Experience (Pago Confirmado)</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
+                                <span>📜 Conferência (Gratuito)</span>
+                              </span>
+                            )}
+                            <div className="text-[10px] text-zinc-400 mt-1 font-mono">{c.packageName}</div>
+                          </td>
                           <td className="p-3 font-sans">
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -1268,8 +1318,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB: REGISTRATIONS & TICKETS */}
-          {activeTab === 'registrations' && (
+          {/* TAB: REGISTRATIONS, PARTICIPANTS & TICKETS */}
+          {(activeTab === 'inscricoes' ||
+            activeTab === 'participantes' ||
+            activeTab === 'ingressos' ||
+            (activeTab as any) === 'registrations') && (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
@@ -1414,8 +1467,289 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB: EXHIBITORS */}
-          {activeTab === 'exhibitors' && (
+          {/* TAB: GESTÃO DE PAGAMENTOS E COMPROVATIVOS */}
+          {(activeTab === 'pagamentos' || (activeTab as any) === 'payments') && (
+            <div className="space-y-6">
+              {/* Header & Subtitle */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                    <DollarSign className="w-5 h-5 text-amber-400" />
+                    <span>Gestão Financeira & Comprovativos de Pagamento</span>
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Validação de comprovativos enviados por Transferência Bancária e Multicaixa Express para emissão oficial de ingressos e certificados.
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <span className="px-3 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-800 text-xs font-bold">
+                    {paymentProofs.filter((p) => p.status === 'CONFIRMADO').length} Aprovados
+                  </span>
+                  <span className="px-3 py-1 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800 text-xs font-bold">
+                    {paymentProofs.filter((p) => p.status === 'PENDENTE').length} Pendentes
+                  </span>
+                </div>
+              </div>
+
+              {/* Financial KPIs */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1">
+                  <span className="text-[11px] text-zinc-400 font-semibold uppercase">Total Comprovativos</span>
+                  <p className="text-xl sm:text-2xl font-black font-mono text-white">{paymentProofs.length}</p>
+                  <p className="text-[10px] text-zinc-500">Submetidos na plataforma</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-800/60 space-y-1">
+                  <span className="text-[11px] text-amber-400 font-semibold uppercase">Aguardando Validação</span>
+                  <p className="text-xl sm:text-2xl font-black font-mono text-amber-300">
+                    {paymentProofs.filter((p) => p.status === 'PENDENTE').length}
+                  </p>
+                  <p className="text-[10px] text-amber-400">Requerem verificação</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/60 space-y-1">
+                  <span className="text-[11px] text-emerald-400 font-semibold uppercase">Pagamentos Confirmados</span>
+                  <p className="text-xl sm:text-2xl font-black font-mono text-emerald-300">
+                    {paymentProofs.filter((p) => p.status === 'CONFIRMADO').length}
+                  </p>
+                  <p className="text-[10px] text-emerald-400">Ingressos libertados</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1">
+                  <span className="text-[11px] text-zinc-400 font-semibold uppercase">Total Confirmado (AOA)</span>
+                  <p className="text-xl sm:text-2xl font-black font-mono text-amber-400">
+                    {paymentProofs
+                      .filter((p) => p.status === 'CONFIRMADO')
+                      .reduce((acc, curr) => acc + (curr.amountAoa || 0), 0)
+                      .toLocaleString('pt-AO')}{' '}
+                    <span className="text-xs text-zinc-400">Kz</span>
+                  </p>
+                  <p className="text-[10px] text-zinc-500">Reconciliado</p>
+                </div>
+              </div>
+
+              {/* Bank Credentials Quick Reference Box */}
+              <div className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div className="flex items-center space-x-3 p-2 rounded-xl bg-zinc-900/60 border border-purple-500/30">
+                  <span className="p-2 rounded-lg bg-purple-950 text-purple-400 font-bold text-[10px]">IBAN OFICIAL</span>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">Conta para Transferência:</span>
+                    <p className="font-mono font-bold text-amber-300 select-all">
+                      A006 0005 0000 9139 5050 1019 7
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 p-2 rounded-xl bg-zinc-900/60 border border-amber-500/30">
+                  <span className="p-2 rounded-lg bg-amber-950 text-amber-400 font-bold text-[10px]">MULTICAIXA EXPRESS</span>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">Contacto de Recebimento:</span>
+                    <p className="font-mono font-bold text-amber-300 select-all">
+                      92115262
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters & Search */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-2">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      placeholder="Pesquisar por participante ou telefone..."
+                      value={proofSearch}
+                      onChange={(e) => setProofSearch(e.target.value)}
+                      className="bg-zinc-900 border border-zinc-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white min-w-[280px]"
+                    />
+                  </div>
+                  <select
+                    value={proofFilterStatus}
+                    onChange={(e) => setProofFilterStatus(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
+                  >
+                    <option value="todos">Todos os Estados</option>
+                    <option value="PENDENTE">Apenas Pendentes</option>
+                    <option value="CONFIRMADO">Apenas Confirmados</option>
+                    <option value="REJEITADO">Apenas Rejeitados</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const csvRows = [
+                      ['ID', 'Participante', 'Telefone', 'Montante (Kz)', 'Modalidade', 'Estado', 'Data Envio', 'Observações'].join(','),
+                      ...paymentProofs.map((p) =>
+                        [
+                          p.id,
+                          `"${p.fullName}"`,
+                          `"${p.phone}"`,
+                          p.amountAoa,
+                          p.paymentMethod,
+                          p.status,
+                          `"${p.submittedAt}"`,
+                          `"${p.notes || ''}"`,
+                        ].join(',')
+                      ),
+                    ].join('\n');
+                    const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Comprovativos_Pagamento_79_Edicao_${new Date().toISOString().slice(0, 10)}.csv`;
+                    link.click();
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg border border-zinc-700 flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Exportar Relatório CSV</span>
+                </button>
+              </div>
+
+              {/* Payment Proofs Table */}
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden shadow-xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-zinc-300">
+                    <thead className="bg-zinc-950 text-[11px] uppercase tracking-wider text-zinc-400 border-b border-zinc-800">
+                      <tr>
+                        <th className="p-3">ID / Data</th>
+                        <th className="p-3">Participante</th>
+                        <th className="p-3">Contacto</th>
+                        <th className="p-3">Montante</th>
+                        <th className="p-3">Modalidade</th>
+                        <th className="p-3">Comprovativo</th>
+                        <th className="p-3">Estado</th>
+                        <th className="p-3 text-right">Acções de Validação</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/80 font-mono">
+                      {paymentProofs
+                        .filter((p) => {
+                          if (proofFilterStatus !== 'todos' && p.status !== proofFilterStatus) return false;
+                          if (proofSearch.trim()) {
+                            const q = proofSearch.toLowerCase().trim();
+                            return (
+                              p.fullName.toLowerCase().includes(q) ||
+                              p.phone.includes(q) ||
+                              p.id.toLowerCase().includes(q)
+                            );
+                          }
+                          return true;
+                        })
+                        .map((p) => (
+                          <tr key={p.id} className="hover:bg-zinc-800/40">
+                            <td className="p-3 font-semibold text-white">
+                              <span className="text-amber-400 font-bold">{p.id}</span>
+                              <div className="text-[10px] text-zinc-500 font-normal">{p.submittedAt}</div>
+                            </td>
+
+                            <td className="p-3 font-sans font-semibold text-white">
+                              {p.fullName}
+                              {p.registrationId && (
+                                <div className="text-[10px] text-zinc-400 font-mono">
+                                  Ref: {p.registrationId}
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="p-3 text-zinc-300">{p.phone}</td>
+
+                            <td className="p-3 font-bold text-amber-300">
+                              {p.amountAoa.toLocaleString('pt-AO')} Kz
+                            </td>
+
+                            <td className="p-3 font-sans">
+                              {p.paymentMethod === 'TRANSFERENCIA_BANCARIA' ? (
+                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
+                                  <span>Transferência Bancária</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">
+                                  <span>Multicaixa Express</span>
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="p-3 font-sans">
+                              {p.proofFileUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewProofItem(p)}
+                                  className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-[11px] font-semibold cursor-pointer"
+                                >
+                                  <Eye className="w-3 h-3 text-amber-400" />
+                                  <span className="truncate max-w-[100px]">{p.proofFileName || 'Ver Anexo'}</span>
+                                </button>
+                              ) : (
+                                <span className="text-zinc-500 text-[10px]">Sem anexo</span>
+                              )}
+                            </td>
+
+                            <td className="p-3 font-sans">
+                              <span
+                                className={`px-2.5 py-1 rounded text-[10px] font-bold ${
+                                  p.status === 'CONFIRMADO'
+                                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                    : p.status === 'PENDENTE'
+                                    ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                                    : 'bg-rose-950 text-rose-300 border border-rose-800'
+                                }`}
+                              >
+                                {p.status}
+                              </span>
+                            </td>
+
+                            <td className="p-3 text-right font-sans space-x-1.5 whitespace-nowrap">
+                              {p.status !== 'CONFIRMADO' && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    eventStore.updatePaymentProofStatus(
+                                      p.id,
+                                      'CONFIRMADO',
+                                      'Comprovativo aprovado pelo administrador'
+                                    );
+                                    setPaymentProofs(eventStore.getPaymentProofSubmissions());
+                                    // If matches a registration, auto-confirm registration in state
+                                    if (p.registrationId) {
+                                      onUpdateRegistrationStatus(p.registrationId, 'CONFIRMADO');
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-700 text-white rounded text-[11px] font-bold cursor-pointer"
+                                >
+                                  Aprovar Pagamento
+                                </button>
+                              )}
+
+                              {p.status !== 'REJEITADO' && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const reason = prompt('Indique o motivo de rejeição deste comprovativo:', 'Comprovativo não reconhecido ou valor divergente');
+                                    if (reason !== null) {
+                                      eventStore.updatePaymentProofStatus(p.id, 'REJEITADO', reason);
+                                      setPaymentProofs(eventStore.getPaymentProofSubmissions());
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 rounded text-[11px] font-bold cursor-pointer"
+                                >
+                                  Rejeitar
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: STANDS & EXHIBITORS */}
+          {(activeTab === 'stands' || (activeTab as any) === 'exhibitors') && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-base font-bold text-white">Candidaturas e Stands de Expositores</h4>
@@ -1527,60 +1861,200 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB: SETTINGS */}
-          {activeTab === 'settings' && (
-            <form onSubmit={handleSaveSettings} className="space-y-5 max-w-2xl">
-              <h4 className="text-base font-bold text-white">Configurações Gerais da 79.ª Edição</h4>
+          {/* TAB: PATROCÍNIOS & OPORTUNIDADES COMERCIAIS */}
+          {(activeTab === 'patrocinios' || (activeTab as any) === 'sponsors') && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center space-x-2">
+                    <Sparkles className="w-5 h-5 text-amber-400" />
+                    <span>Candidaturas & Propostas de Patrocínio</span>
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Empresas interessadas nas cotas de patrocínio e ativação de marca na 79.ª Edição.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(initialSponsorshipProps || []).length === 0 ? (
+                  <div className="col-span-2 p-8 text-center rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs space-y-2">
+                    <Sparkles className="w-6 h-6 text-amber-400 mx-auto" />
+                    <p className="font-bold text-white">Nenhum pedido de patrocínio pendente</p>
+                    <p>As manifestações de interesse submetidas através do botão "Tornar-se Patrocinador" surgirão aqui.</p>
+                  </div>
+                ) : (
+                  (initialSponsorshipProps || []).map((spon) => (
+                    <div key={spon.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 font-mono">
+                            Cota: {spon.tier || 'Oficial'}
+                          </span>
+                          <h5 className="text-base font-bold text-white">{spon.companyName}</h5>
+                          <p className="text-xs text-zinc-400">{spon.representativeName} · {spon.role}</p>
+                        </div>
+                        <span
+                          className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                            spon.status === 'Aprovado'
+                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                              : 'bg-amber-950 text-amber-300 border border-amber-800'
+                          }`}
+                        >
+                          {spon.status}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-zinc-950 text-xs text-zinc-300 space-y-1">
+                        <p className="text-zinc-400 text-[11px]">
+                          <strong>Contacto:</strong> {spon.phone} · {spon.email}
+                        </p>
+                        {spon.message && <p className="italic text-zinc-300">"{spon.message}"</p>}
+                      </div>
+
+                      <div className="flex justify-end space-x-2 pt-1 border-t border-zinc-800">
+                        {onUpdateSponsorshipStatus && spon.status !== 'Aprovado' && (
+                          <button
+                            type="button"
+                            onClick={() => onUpdateSponsorshipStatus(spon.id, 'Aprovado')}
+                            className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 rounded-lg cursor-pointer"
+                          >
+                            Aprovar Proposta
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: SETTINGS & CONFIGURAÇÕES */}
+          {(activeTab === 'configuracoes' || (activeTab as any) === 'settings') && (
+            <form onSubmit={handleSaveSettings} className="space-y-6 max-w-3xl">
+              <div>
+                <h4 className="text-base sm:text-lg font-bold text-white">Configurações Gerais da 79.ª Edição</h4>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Edite os dados oficiais do evento, informações bancárias e parâmetros do sistema.
+                </p>
+              </div>
+
               {settingsSavedMessage && (
-                <div className="p-3 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs">
-                  Definições guardadas com sucesso!
+                <div className="p-3.5 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Definições do evento guardadas com sucesso!</span>
                 </div>
               )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="space-y-1">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Edição Oficial</label>
+                  <input
+                    type="text"
+                    value={editingSettings.edition}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, edition: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Tema Oficial do Evento</label>
+                  <input
+                    type="text"
+                    value={editingSettings.themeTitle}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, themeTitle: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <label className="text-zinc-300 font-semibold">Data Oficial do Evento</label>
                   <input
                     type="text"
                     value={editingSettings.eventDateText}
                     onChange={(e) => setEditingSettings({ ...editingSettings, eventDateText: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-zinc-300 font-semibold">Local Oficial / Cidade</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Horário Oficial</label>
+                  <input
+                    type="text"
+                    value={editingSettings.eventTimeText}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, eventTimeText: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Local Oficial</label>
                   <input
                     type="text"
                     value={editingSettings.venueName}
                     onChange={(e) => setEditingSettings({ ...editingSettings, venueName: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-zinc-300 font-semibold">Telefone Oficial</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Dress Code & Elemento Simbólico</label>
                   <input
                     type="text"
-                    value={editingSettings.organizerPhone}
-                    onChange={(e) => setEditingSettings({ ...editingSettings, organizerPhone: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-white font-mono"
+                    value={editingSettings.dressCode}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, dressCode: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white"
                   />
                 </div>
-                <div className="space-y-1">
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">IBAN Oficial para Pagamentos</label>
+                  <input
+                    type="text"
+                    value={editingSettings.officialIban}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, officialIban: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Contacto Multicaixa Express</label>
+                  <input
+                    type="text"
+                    value={editingSettings.officialExpressNumber}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, officialExpressNumber: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <label className="text-zinc-300 font-semibold">Preço do Certificado da Conferência (Kz)</label>
                   <input
                     type="number"
                     value={editingSettings.conferenceCertificatePriceAoa}
                     onChange={(e) => setEditingSettings({ ...editingSettings, conferenceCertificatePriceAoa: Number(e.target.value) })}
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 text-white font-mono"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-semibold">Telefone de Apoio / Coordenação</label>
+                  <input
+                    type="text"
+                    value={editingSettings.organizerPhone}
+                    onChange={(e) => setEditingSettings({ ...editingSettings, organizerPhone: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-white font-mono"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="px-6 py-2.5 text-xs font-bold text-white bg-[#BE123C] hover:bg-rose-600 rounded-xl flex items-center space-x-1.5"
+                className="px-6 py-3 text-xs font-bold text-white bg-gradient-to-r from-[#DC1037] to-[#BE123C] hover:opacity-95 rounded-xl shadow flex items-center space-x-1.5 cursor-pointer"
               >
                 <Save className="w-4 h-4" />
-                <span>Guardar Alterações</span>
+                <span>Guardar Todas as Alterações</span>
               </button>
             </form>
           )}
@@ -1937,6 +2411,146 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <button
                     onClick={() => setPreviewEmailAlert(null)}
                     className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-bold cursor-pointer"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Visualizador de Comprovativo de Pagamento */}
+        {previewProofItem && (
+          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl flex flex-col max-h-[90vh]">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <div className="flex items-center space-x-2.5">
+                  <FileCheck className="w-5 h-5 text-amber-400" />
+                  <div>
+                    <h4 className="font-bold text-white text-sm">
+                      Comprovativo de Pagamento: {previewProofItem.id}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400">
+                      {previewProofItem.fullName} · {previewProofItem.phone}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPreviewProofItem(null)}
+                  className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Summary Details */}
+              <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800 text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase">Montante:</span>
+                  <p className="font-mono font-bold text-amber-300">
+                    {previewProofItem.amountAoa.toLocaleString('pt-AO')} Kz
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase">Modalidade:</span>
+                  <p className="font-bold text-white">
+                    {previewProofItem.paymentMethod === 'TRANSFERENCIA_BANCARIA' ? 'Transferência' : 'MCX Express'}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase">Estado Atual:</span>
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                      previewProofItem.status === 'CONFIRMADO'
+                        ? 'bg-emerald-950 text-emerald-300'
+                        : previewProofItem.status === 'PENDENTE'
+                        ? 'bg-amber-950 text-amber-300'
+                        : 'bg-rose-950 text-rose-300'
+                    }`}
+                  >
+                    {previewProofItem.status}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase">Data de Envio:</span>
+                  <p className="text-zinc-300 font-mono text-[11px]">{previewProofItem.submittedAt}</p>
+                </div>
+              </div>
+
+              {previewProofItem.notes && (
+                <div className="p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80 text-xs text-zinc-300">
+                  <strong className="text-zinc-400">Observação do participante:</strong> {previewProofItem.notes}
+                </div>
+              )}
+
+              {/* File Image/PDF container */}
+              <div className="flex-1 overflow-y-auto bg-black/60 rounded-xl p-3 border border-zinc-800 flex items-center justify-center min-h-[220px]">
+                {previewProofItem.proofFileUrl ? (
+                  previewProofItem.proofFileUrl.startsWith('data:image') ||
+                  previewProofItem.proofFileUrl.includes('unsplash') ||
+                  previewProofItem.proofFileName?.match(/\.(jpg|jpeg|png|webp)$/i) ? (
+                    <img
+                      src={previewProofItem.proofFileUrl}
+                      alt={`Comprovativo de ${previewProofItem.fullName}`}
+                      className="max-h-[380px] w-auto object-contain rounded-lg shadow-lg border border-zinc-800"
+                    />
+                  ) : (
+                    <div className="text-center space-y-3 p-6">
+                      <FileCheck className="w-12 h-12 text-amber-400 mx-auto" />
+                      <div>
+                        <p className="text-sm font-bold text-white">{previewProofItem.proofFileName}</p>
+                        <p className="text-xs text-zinc-400 mt-1">Documento digital em anexo (PDF)</p>
+                      </div>
+                      <a
+                        href={previewProofItem.proofFileUrl}
+                        download={previewProofItem.proofFileName}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1.5 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold"
+                      >
+                        <Download className="w-4 h-4 text-amber-400" />
+                        <span>Descarregar / Abrir Ficheiro</span>
+                      </a>
+                    </div>
+                  )
+                ) : (
+                  <p className="text-xs text-zinc-500">Sem ficheiro disponível.</p>
+                )}
+              </div>
+
+              {/* Actions Footer */}
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                <span className="text-[11px] text-zinc-400 font-mono">
+                  Ficheiro: {previewProofItem.proofFileName}
+                </span>
+
+                <div className="flex items-center space-x-2">
+                  {previewProofItem.status !== 'CONFIRMADO' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        eventStore.updatePaymentProofStatus(
+                          previewProofItem.id,
+                          'CONFIRMADO',
+                          'Validado e aprovado via visualizador'
+                        );
+                        setPaymentProofs(eventStore.getPaymentProofSubmissions());
+                        if (previewProofItem.registrationId) {
+                          onUpdateRegistrationStatus(previewProofItem.registrationId, 'CONFIRMADO');
+                        }
+                        setPreviewProofItem(null);
+                      }}
+                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer shadow"
+                    >
+                      Aprovar Pagamento
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewProofItem(null)}
+                    className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold cursor-pointer"
                   >
                     Fechar
                   </button>

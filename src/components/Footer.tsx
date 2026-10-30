@@ -13,7 +13,11 @@ import {
   Ticket,
   Award,
   Search,
+  MessageCircle,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
+import { GeometricDecoration } from './GeometricDecorations';
 
 interface FooterProps {
   settings: EventSettings;
@@ -71,8 +75,48 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <footer id="contactos" className="bg-[#08080C] border-t border-white/10 text-zinc-300 pt-16 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <footer id="contactos" className="bg-[#150724] border-t border-purple-900/40 text-zinc-300 pt-16 pb-12 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
+        {/* SECTION 16: SECÇÃO FINAL DE CONVERSÃO strictly matching Prompt */}
+        <div className="relative rounded-3xl overflow-hidden p-8 sm:p-12 md:p-16 bg-gradient-to-r from-[#43085C] via-[#B20D64] to-[#DC1037] text-white shadow-2xl border border-white/20">
+          <GeometricDecoration position="top-right" variant="diamonds" size="lg" className="opacity-80" />
+          <GeometricDecoration position="bottom-left" variant="polygons" size="md" className="opacity-70" />
+
+          <div className="relative z-10 max-w-3xl space-y-6 text-center md:text-left">
+            <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-black uppercase tracking-widest text-amber-300">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>27 DE NOVEMBRO DE 2026 · LUANDA</span>
+            </span>
+
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-[0.95] text-white">
+              AS OPORTUNIDADES NÃO ESPERAM.
+              <br />
+              <span className="text-amber-300">E VOCÊ?</span>
+            </h2>
+
+            <p className="text-sm sm:text-lg text-zinc-100 leading-relaxed font-medium">
+              No dia <strong>27 de Novembro</strong>, o Café do Empreendedor reunirá pessoas que querem aprender, conectar-se, inovar e criar novas oportunidades. O próximo passo do seu negócio pode começar com uma conversa.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4">
+              <button
+                onClick={onOpenRegister}
+                className="px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-wider bg-white text-zinc-950 hover:bg-[#FFC928] hover:text-black rounded-xl shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center space-x-2 cursor-pointer"
+              >
+                <span>GARANTIR A MINHA PARTICIPAÇÃO</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </button>
+
+              <button
+                onClick={onOpenStandBooking}
+                className="px-6 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider bg-black/40 hover:bg-black/60 text-white rounded-xl border border-white/25 transition-all flex items-center space-x-2 cursor-pointer"
+              >
+                <span>Reservar Stand</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Access Menu Bar (Item 12 of prompt) */}
         <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center space-x-2">
@@ -307,6 +351,20 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Floating Official WhatsApp Button (Prompt Section 17) */}
+      <a
+        href="https://wa.me/244921152162?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20a%2079.%C2%AA%20Edi%C3%A7%C3%A3o%20do%20Caf%C3%A9%20do%20Empreendedor"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 p-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl shadow-emerald-950/70 transition-transform hover:scale-110 active:scale-95 flex items-center space-x-2 group cursor-pointer border border-emerald-400/50"
+        title="Falar no WhatsApp com a Organização (+244 921 152 162)"
+      >
+        <MessageCircle className="w-6 h-6 animate-pulse" />
+        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-xs font-bold pl-0 group-hover:pl-1">
+          WhatsApp Oficial (+244 921 152 162)
+        </span>
+      </a>
     </footer>
   );
 };

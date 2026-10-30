@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-blue-electric: #0173EF;
+  --color-blue-royal: #0152D9;
+  --color-blue-navy: #032877;
+  --color-blue-light: #65A6F4;
+  --color-white-pure: #F9F9FB;
+  --color-gold-yellow: #F8D21C;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: #F3F4F6;
-    background-color: #0A0A0F;
+    color: #F9F9FB;
+    background-color: #031B4D;
   }
 
   h1, h2, h3, h4 {

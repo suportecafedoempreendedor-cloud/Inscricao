@@ -44,6 +44,8 @@ import {
   ChevronDown,
   ChevronUp,
   Activity,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 
 interface CheckInStaffPortalProps {
@@ -99,6 +101,58 @@ export const CheckInStaffPortal: React.FC<CheckInStaffPortalProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Sound feedback state & synthesis (Web Audio API)
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const playAudioFeedback = (type: 'success' | 'error') => {
+    if (!soundEnabled) return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+
+      if (type === 'success') {
+        // High harmonic double-beep for valid admission
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.setValueAtTime(1320, now + 0.09);
+
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else {
+        // Low dual-tone buzzer for error / already used
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.setValueAtTime(170, now + 0.12);
+
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.32);
+      }
+    } catch {
+      // Audio playback silently catches if browser requires prior gesture
+    }
+  };
+
   if (!isOpen) return null;
 
   // Handle Query Evaluation (Backend Check via eventStore)
@@ -113,6 +167,11 @@ export const CheckInStaffPortal: React.FC<CheckInStaffPortalProps> = ({
       const res = eventStore.evaluateCheckIn(clean);
       setEvaluation(res);
       setIsEvaluating(false);
+      if (res.status === 'VALIDO') {
+        playAudioFeedback('success');
+      } else {
+        playAudioFeedback('error');
+      }
     }, 120);
   };
 
@@ -127,11 +186,13 @@ export const CheckInStaffPortal: React.FC<CheckInStaffPortalProps> = ({
 
     const execRes = eventStore.executeCheckIn(evaluation.registration.id, activeStaff);
     if (execRes.success) {
+      playAudioFeedback('success');
       setSuccessFeedback(execRes.message);
       setEvaluation(null);
       setQueryInput('');
       refreshKpis();
     } else {
+      playAudioFeedback('error');
       setEvaluation({
         status: 'INVALIDO',
         message: execRes.message,
@@ -151,6 +212,7 @@ export const CheckInStaffPortal: React.FC<CheckInStaffPortalProps> = ({
     );
 
     if (execRes.success) {
+      playAudioFeedback('success');
       setSuccessFeedback(execRes.message);
       setEvaluation(null);
       setIsOverrideModalOpen(false);
@@ -332,6 +394,18 @@ export const CheckInStaffPortal: React.FC<CheckInStaffPortalProps> = ({
                 Painel Admin
               </button>
             )}
+
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className={`p-1.5 rounded-xl border transition-colors cursor-pointer ${
+                soundEnabled
+                  ? 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/60'
+                  : 'bg-zinc-800 text-zinc-500 border-zinc-700 hover:text-zinc-300'
+              }`}
+              title={soundEnabled ? 'Feedback sonoro activo (bip de sucesso/buzina de erro)' : 'Feedback sonoro silenciado'}
+            >
+              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+            </button>
 
             <button
               onClick={onClose}

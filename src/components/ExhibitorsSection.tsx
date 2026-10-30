@@ -39,26 +39,29 @@ export const ExhibitorsSection: React.FC<ExhibitorsSectionProps> = ({
   return (
     <section id="expositores" className="py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Section Header */}
+        {/* Section Header strictly matching Section 10 */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
-              Feira de Negócios & Mostra Comercial
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
-              Expositores Confirmados
+          <div className="space-y-2 max-w-3xl">
+            <span className="text-xs font-black text-amber-400 uppercase tracking-widest">
+              ÁREA DE EXPOSITORES
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+              A SUA MARCA MERECE ESTAR ONDE OS NEGÓCIOS ACONTECEM.
             </h2>
-            <p className="text-sm text-zinc-400 mt-1 max-w-xl">
-              Descubra soluções inovadoras, marcas nacionais consolidadas e novos produtos apresentados na feira da 79.ª Edição.
+            <p className="text-sm sm:text-base font-bold text-amber-300">
+              Uma vitrina para marcas. Um ponto de encontro para oportunidades.
+            </p>
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-2xl">
+              A Área de Expositores da 79.ª Edição do Café do Empreendedor foi concebida para aproximar empresas, empreendedores e potenciais clientes. Um espaço para apresentar soluções, fortalecer a presença da marca, criar relações comerciais e descobrir novas oportunidades.
             </p>
           </div>
 
           <button
             onClick={onOpenStandBooking}
-            className="self-start md:self-end px-5 py-3 text-xs font-bold text-white rounded-xl bg-gradient-to-r from-[#9F1239] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] shadow-lg shadow-rose-950/40 transition-all flex items-center space-x-2"
+            className="self-start md:self-end px-6 py-4 text-xs font-black uppercase tracking-wider text-white rounded-xl bg-gradient-to-r from-[#DC1037] via-[#B20D64] to-[#75116E] hover:from-[#ED3038] hover:to-[#B20D64] shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer border border-rose-400/30"
           >
             <PlusCircle className="w-4 h-4 text-amber-300" />
-            <span>Candidatar Empresa / Reservar Stand</span>
+            <span>QUERO EXPOR A MINHA MARCA</span>
           </button>
         </div>
 

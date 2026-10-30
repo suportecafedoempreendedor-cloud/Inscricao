@@ -15,6 +15,7 @@ import {
   GalleryItem,
   AuditLog,
   PaymentMethod,
+  PaymentStatus,
   TicketStatus,
   DispatchChannel,
   DispatchStatus,
@@ -24,6 +25,10 @@ import {
   CheckInValidationResult,
   CheckInRecord,
   CapacityAlert,
+  OpportunityStatus,
+  SponsorshipRequest,
+  PaymentProofSubmission,
+  CapacityStats,
 } from '../types';
 
 const STORAGE_KEY_PREFIX = 'cafe_empreendedor_79_';
@@ -32,13 +37,16 @@ const STORAGE_KEY_PREFIX = 'cafe_empreendedor_79_';
 export const initialEventSettings: EventSettings = {
   edition: '79.ª Edição',
   title: 'Café do Empreendedor',
-  tagline: 'Conectando pessoas. Transformando ideias em negócios.',
+  tagline: 'O futuro dos negócios não se espera. Constrói-se aqui.',
+  themeTitle: 'Empreendedorismo que Gera Resultados',
+  dressCode: 'VESTIR AZUL — OBRIGATÓRIO',
+  symbolicElement: 'Laço azul',
   description:
-    'Uma experiência dedicada ao empreendedorismo, à inovação, ao conhecimento e à criação de oportunidades de negócio em Angola. Produzido por Geração Digital Angola.',
-  eventDateText: 'A ser anunciado brevemente (1.º Trimestre)',
-  eventTimeText: '08:30 – 18:30 (Horário de Luanda)',
-  venueName: 'Luanda, Angola',
-  venueAddress: 'Local oficial a divulgar pela organização',
+    'No dia 27 de novembro de 2026, às 08h30, na Mediateca Zé Dú — Cazenga, realiza-se a 79.ª Edição do Café do Empreendedor com o tema "Empreendedorismo que Gera Resultados". DRESS CODE: VESTIR AZUL — OBRIGATÓRIO.',
+  eventDateText: '27 de novembro de 2026',
+  eventTimeText: '08h30',
+  venueName: 'Mediateca Zé Dú — Cazenga',
+  venueAddress: 'Mediateca Zé Dú, Cazenga, Luanda, Angola',
   city: 'Luanda',
   organizerName: 'Geração Digital Angola',
   organizerEmail: 'gdangola12@gmail.com',
@@ -46,10 +54,14 @@ export const initialEventSettings: EventSettings = {
   organizerWhatsApp: '+244921152162',
   registrationOpen: true,
   statusBadge: 'Inscrições Abertas',
-  ibanBFA: 'AO06 0006 0000 1234 5678 9012 3',
-  ibanBAI: 'AO06 0040 0000 9876 5432 1098 7',
-  multicaixaEntidade: '99245',
-  heroAnnouncement: 'Conferência com Entrada Gratuita · Pacotes Café Experience com Certificado Digital Oficial incluído.',
+  officialIban: 'A006 0005 0000 9139 5050 1019 7',
+  officialExpressNumber: '92115262',
+  ibanBFA: 'A006 0005 0000 9139 5050 1019 7',
+  ibanBAI: 'A006 0005 0000 9139 5050 1019 7',
+  multicaixaEntidade: '92115262',
+  heroAnnouncement: '79.ª Edição · Tema: Empreendedorismo que Gera Resultados · 27 de Novembro às 08h30 · Mediateca Zé Dú — Cazenga · DRESS CODE: VESTIR AZUL — OBRIGATÓRIO',
+  // Capacity & Vacancy Control
+  totalEventCapacity: 950,
   // Certificate Policy Config
   requireCheckInForCertificate: false, // Pode ser alterado no Painel Admin
   conferenceCertificatePriceAoa: 2000,
@@ -413,6 +425,47 @@ export const initialSponsors: Sponsor[] = [
     description: 'Instituição financeira de referência no apoio à tesouraria e linhas de crédito para PMEs em Angola.',
     website: 'https://banco-parceiro.ao',
     benefitsSummary: 'Espaço VIP no hall central, presença no júri do Pitch e palestra magna sobre financiamento.',
+  },
+];
+
+export const initialSponsorshipRequests: SponsorshipRequest[] = [
+  {
+    id: 'pat-01',
+    companyName: 'Banco de Comércio & Indústria (BCI)',
+    representativeName: 'Dr. António Manuel',
+    role: 'Director de Relações Institucionais',
+    phone: '+244 923 881 220',
+    email: 'relacoes@bci-angola.ao',
+    tier: 'Ouro',
+    message: 'Pretendemos patrocinar o evento com naming do painel de Finanças e activação de linha de crédito no stand.',
+    status: 'Em análise',
+    submittedAt: '2026-10-12 11:30',
+    notes: 'Reunião marcada com o conselho directivo para alinhamento.',
+  },
+  {
+    id: 'pat-02',
+    companyName: 'AngoTelecom Soluções Corporativas',
+    representativeName: 'Dra. Marta Domingos',
+    role: 'Head of Corporate Affairs',
+    phone: '+244 912 770 411',
+    email: 'marta.domingos@angotelecom.ao',
+    tier: 'Prata',
+    message: 'Interesse em assegurar conectividade oficial de alta velocidade para a Mediateca Zé Dú e os expositores.',
+    status: 'Aprovado',
+    submittedAt: '2026-10-13 15:45',
+    notes: 'Contrato preliminar enviado.',
+  },
+  {
+    id: 'pat-03',
+    companyName: 'Nova Geração Agropecuária Lda',
+    representativeName: 'Eng. Francisco Kiala',
+    role: 'Sócio-Gerente',
+    phone: '+244 934 551 098',
+    email: 'francisco@novageracao.ao',
+    tier: 'Bronze',
+    message: 'Apoio à mostra agrícola e distribuição de amostras aos participantes da conferência.',
+    status: 'Pendente',
+    submittedAt: '2026-10-14 09:15',
   },
 ];
 
@@ -841,7 +894,26 @@ export const initialCertificates: Certificate[] = [
   },
 ];
 
-class EventStore {
+export class EventStore {
+  private listeners: Array<() => void> = [];
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyListeners(): void {
+    this.listeners.forEach((l) => {
+      try {
+        l();
+      } catch (err) {
+        console.error('Error in EventStore listener:', err);
+      }
+    });
+  }
+
   private get<T>(key: string, defaultValue: T): T {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_PREFIX + key);
@@ -855,6 +927,7 @@ class EventStore {
   private set<T>(key: string, value: T): void {
     try {
       localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(value));
+      this.notifyListeners();
     } catch (e) {
       console.warn('Storage error:', e);
     }
@@ -866,11 +939,33 @@ class EventStore {
     if (
       current.organizerWhatsApp !== '+244921152162' ||
       current.organizerPhone !== '+244 921 152 162' ||
-      current.organizerEmail !== 'gdangola12@gmail.com'
+      current.organizerEmail !== 'gdangola12@gmail.com' ||
+      !current.eventDateText.includes('27 de novembro') ||
+      !current.venueName.includes('Mediateca') ||
+      current.officialIban !== 'A006 0005 0000 9139 5050 1019 7' ||
+      current.officialExpressNumber !== '92115262' ||
+      !current.themeTitle ||
+      !current.totalEventCapacity ||
+      current.dressCode !== 'VESTIR AZUL — OBRIGATÓRIO'
     ) {
+      current.venueName = 'Mediateca Zé Dú — Cazenga';
+      current.venueAddress = 'Mediateca Zé Dú, Cazenga, Luanda, Angola';
+      current.city = 'Luanda';
+      current.themeTitle = 'Empreendedorismo que Gera Resultados';
+      current.dressCode = 'VESTIR AZUL — OBRIGATÓRIO';
+      current.symbolicElement = 'Laço azul';
+      current.officialIban = 'A006 0005 0000 9139 5050 1019 7';
+      current.officialExpressNumber = '92115262';
+      current.ibanBFA = 'A006 0005 0000 9139 5050 1019 7';
+      current.ibanBAI = 'A006 0005 0000 9139 5050 1019 7';
+      current.multicaixaEntidade = '92115262';
       current.organizerWhatsApp = '+244921152162';
       current.organizerPhone = '+244 921 152 162';
       current.organizerEmail = 'gdangola12@gmail.com';
+      current.eventDateText = '27 de novembro de 2026';
+      current.eventTimeText = '08h30';
+      current.tagline = 'O futuro dos negócios não se espera. Constrói-se aqui.';
+      current.totalEventCapacity = current.totalEventCapacity || 950;
       this.set('settings', current);
     }
     return current;
@@ -903,7 +998,57 @@ class EventStore {
     this.checkAndTriggerCapacityAlerts();
   }
 
-  // Registrations
+  // Capacity & Dynamic Vacancies Control
+  getTotalEventCapacity(): number {
+    const settings = this.getSettings();
+    return settings.totalEventCapacity || 950;
+  }
+
+  getRegisteredCount(): number {
+    // Each valid active registration occupies 1 slot (even if payment is pending)
+    return this.getRegistrations().filter((r) => r.ticketStatus !== 'CANCELADO').length;
+  }
+
+  getAvailableVacancies(): number {
+    const total = this.getTotalEventCapacity();
+    const registered = this.getRegisteredCount();
+    return Math.max(0, total - registered);
+  }
+
+  getCapacityStats(): CapacityStats {
+    const totalCapacity = this.getTotalEventCapacity();
+    const registeredCount = this.getRegisteredCount();
+    const remainingVacancies = Math.max(0, totalCapacity - registeredCount);
+    const occupancyPercentage =
+      totalCapacity > 0 ? Math.min(100, Math.round((registeredCount / totalCapacity) * 100)) : 0;
+    const isSoldOut = remainingVacancies <= 0;
+
+    return {
+      totalCapacity,
+      registeredCount,
+      remainingVacancies,
+      occupancyPercentage,
+      isSoldOut,
+    };
+  }
+
+  isSoldOut(): boolean {
+    return this.getAvailableVacancies() <= 0;
+  }
+
+  updateTotalEventCapacity(newCapacity: number): void {
+    const current = this.getSettings();
+    const validatedCapacity = Math.max(1, Number(newCapacity) || 950);
+    current.totalEventCapacity = validatedCapacity;
+    this.set('settings', current);
+    this.logAction(
+      'Capacidade de Vagas',
+      `Capacidade total do evento ajustada para ${validatedCapacity} vagas pelo administrador.`
+    );
+    this.checkAndTriggerCapacityAlerts();
+  }
+
+  // Registrations with strict capacity and notification control
   getRegistrations(): Registration[] {
     return this.get<Registration[]>('registrations', initialRegistrations);
   }
@@ -919,8 +1064,39 @@ class EventStore {
       | 'qrCodeData'
       | 'checkInStatus'
       | 'dispatches'
+      | 'emailNotificationStatus'
+      | 'emailNotificationSentAt'
+      | 'emailNotificationError'
     >
   ): Registration {
+    // 1. Enforce strict capacity limit: prevent over-booking
+    const currentVacancies = this.getAvailableVacancies();
+    if (currentVacancies <= 0) {
+      this.logAction(
+        'Bloqueio de Inscrição',
+        `Tentativa de inscrição bloqueada: lotação esgotada (0 vagas restantes).`
+      );
+      throw new Error('INSCRIÇÕES ENCERRADAS — TODAS AS VAGAS FORAM PREENCHIDAS.');
+    }
+
+    // 2. Prevent duplicate submissions from consuming multiple slots
+    const cleanPhone = (reg.phone || '').trim().replace(/[^0-9]/g, '');
+    const cleanEmail = (reg.email || '').trim().toLowerCase();
+    const existingActive = this.getRegistrations().find((r) => {
+      if (r.ticketStatus === 'CANCELADO') return false;
+      const rPhone = (r.phone || '').replace(/[^0-9]/g, '');
+      const rEmail = (r.email || '').trim().toLowerCase();
+      return (cleanPhone && rPhone === cleanPhone) || (cleanEmail && rEmail === cleanEmail);
+    });
+
+    if (existingActive) {
+      this.logAction(
+        'Inscrição Existente',
+        `Inscrição duplicada evitada para ${reg.fullName} (${reg.phone}). Retornada credencial ${existingActive.ticketCode}.`
+      );
+      return existingActive;
+    }
+
     let ticketCode = generateUniqueTicketCode();
     const existing = this.getRegistrations();
     while (existing.some((r) => r.ticketCode === ticketCode)) {
@@ -941,12 +1117,14 @@ class EventStore {
       checkInStatus: 'PENDENTE',
       createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
       dispatches: [],
+      emailNotificationStatus: 'PENDENTE',
     };
 
+    // Save registration (automatically decrements 1 vacancy dynamically)
     const list = [newReg, ...this.getRegistrations()];
     this.set('registrations', list);
 
-    // Update ticket sold count
+    // Update ticket tier sold count
     const tiers = this.getTicketTiers().map((t) => {
       if (t.id === reg.ticketTierId) {
         return { ...t, soldCount: t.soldCount + 1 };
@@ -955,12 +1133,166 @@ class EventStore {
     });
     this.set('ticketTiers', tiers);
 
+    const remaining = this.getAvailableVacancies();
     this.logAction(
       'Inscrição',
-      `Nova inscrição registada: ${newReg.fullName} (${newReg.ticketCode} - Ref Interna: ${internalControlCode})`
+      `Nova inscrição registada: ${newReg.fullName} (${newReg.ticketCode}). Vagas restantes: ${remaining}.`
     );
+
+    // Automatically trigger notification to gdangola12@gmail.com
+    this.dispatchAdminNotification(newReg).catch((err) => {
+      console.warn('Falha no envio da notificação:', err);
+    });
+
     this.checkAndTriggerCapacityAlerts();
     return newReg;
+  }
+
+  cancelRegistration(id: string, reason?: string): { success: boolean; message: string } {
+    const list = this.getRegistrations().map((r) => {
+      if (r.id === id) {
+        return {
+          ...r,
+          ticketStatus: 'CANCELADO' as TicketStatus,
+          status: 'CANCELADO' as PaymentStatus,
+          notes: reason ? `${r.notes || ''} [Cancelado: ${reason}]` : r.notes,
+        };
+      }
+      return r;
+    });
+    this.set('registrations', list);
+
+    // Decrement tier sold count
+    const cancelledReg = this.getRegistrations().find((r) => r.id === id);
+    if (cancelledReg) {
+      const tiers = this.getTicketTiers().map((t) => {
+        if (t.id === cancelledReg.ticketTierId && t.soldCount > 0) {
+          return { ...t, soldCount: Math.max(0, t.soldCount - 1) };
+        }
+        return t;
+      });
+      this.set('ticketTiers', tiers);
+    }
+
+    const available = this.getAvailableVacancies();
+    this.logAction(
+      'Inscrição Cancelada',
+      `Inscrição ${id} cancelada pelo administrador. Vaga correspondente libertada automaticamente (Vagas restantes: ${available}).`
+    );
+    return { success: true, message: `Inscrição cancelada com sucesso. Vaga libertada (${available} disponíveis).` };
+  }
+
+  deleteRegistration(id: string): { success: boolean; message: string } {
+    const target = this.getRegistrations().find((r) => r.id === id);
+    const list = this.getRegistrations().filter((r) => r.id !== id);
+    this.set('registrations', list);
+
+    if (target && target.ticketStatus !== 'CANCELADO') {
+      const tiers = this.getTicketTiers().map((t) => {
+        if (t.id === target.ticketTierId && t.soldCount > 0) {
+          return { ...t, soldCount: Math.max(0, t.soldCount - 1) };
+        }
+        return t;
+      });
+      this.set('ticketTiers', tiers);
+    }
+
+    const available = this.getAvailableVacancies();
+    this.logAction('Inscrição Removida', `Inscrição ${id} removida da base de dados. Vagas restantes: ${available}.`);
+    return { success: true, message: 'Registo removido com sucesso e vaga recalculada.' };
+  }
+
+  // Automatic Notification to gdangola12@gmail.com
+  async dispatchAdminNotification(reg: Registration): Promise<{
+    success: boolean;
+    status: 'ENVIADO' | 'PENDENTE' | 'FALHOU';
+    messageId?: string;
+    error?: string;
+  }> {
+    const settings = this.getSettings();
+    try {
+      const response = await fetch('/api/notifications/new-registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminEmail: 'gdangola12@gmail.com',
+          subject: '[NOVA INSCRIÇÃO] Café do Empreendedor — 79.ª Edição',
+          participant: {
+            id: reg.id,
+            fullName: reg.fullName,
+            phone: reg.phone,
+            whatsapp: reg.whatsapp || reg.phone,
+            email: reg.email,
+            jobTitle: reg.jobTitle || reg.areaOfExpertise || 'Profissional',
+            company: reg.company || 'Participante Individual',
+            createdAt: reg.createdAt,
+            ticketCode: reg.ticketCode,
+            status: reg.status,
+          },
+          event: {
+            name: 'Café do Empreendedor',
+            edition: '79.ª',
+            theme: settings.themeTitle,
+            date: settings.eventDateText,
+            time: settings.eventTimeText,
+            venue: settings.venueName,
+            dressCode: 'VESTIR AZUL — OBRIGATÓRIO',
+          },
+        }),
+      });
+
+      const resData = await response.json();
+      const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      if (response.ok && (resData.success || resData.status === 'ENVIADO' || resData.status === 'REGISTADO_LOCAL')) {
+        // Mark as ENVIADO
+        const updatedList = this.getRegistrations().map((r) =>
+          r.id === reg.id
+            ? {
+                ...r,
+                emailNotificationStatus: 'ENVIADO' as const,
+                emailNotificationSentAt: nowStr,
+                emailNotificationError: undefined,
+              }
+            : r
+        );
+        this.set('registrations', updatedList);
+        this.logAction(
+          'Notificação Admin',
+          `Notificação por e-mail [ENVIADO] para gdangola12@gmail.com ref: ${reg.ticketCode} (${reg.fullName}).`
+        );
+        return { success: true, status: 'ENVIADO', messageId: resData.messageId };
+      } else {
+        throw new Error(resData.error || 'Falha no serviço de e-mail');
+      }
+    } catch (err: any) {
+      // In case of failure: keep registration safely saved, record failure
+      const updatedList = this.getRegistrations().map((r) =>
+        r.id === reg.id
+          ? {
+              ...r,
+              emailNotificationStatus: 'FALHOU' as const,
+              emailNotificationError: err.message || 'Erro de conexão no envio',
+            }
+          : r
+      );
+      this.set('registrations', updatedList);
+      this.logAction(
+        'Falha Notificação Admin',
+        `Falha ao enviar e-mail para gdangola12@gmail.com ref: ${reg.ticketCode}: ${err.message}`
+      );
+      return { success: false, status: 'FALHOU', error: err.message };
+    }
+  }
+
+  async resendAdminNotification(regId: string): Promise<{ success: boolean; message: string }> {
+    const reg = this.getRegistrations().find((r) => r.id === regId);
+    if (!reg) return { success: false, message: 'Inscrição não encontrada' };
+    const res = await this.dispatchAdminNotification(reg);
+    if (res.success) {
+      return { success: true, message: 'Notificação reenviada com sucesso para gdangola12@gmail.com!' };
+    }
+    return { success: false, message: `Falha ao reenviar notificação: ${res.error || 'Erro desconhecido'}` };
   }
 
   updateRegistrationStatus(id: string, status: Registration['status'], notes?: string): void {
@@ -1801,7 +2133,11 @@ class EventStore {
     return newExhibitor;
   }
 
-  updateExhibitorStatus(id: string, status: 'APROVADO' | 'REJEITADO', standNumber?: string): void {
+  updateExhibitorStatus(
+    id: string,
+    status: OpportunityStatus | 'APROVADO' | 'PENDENTE' | 'REJEITADO',
+    standNumber?: string
+  ): void {
     const list = this.getExhibitors().map((e) => {
       if (e.id === id) {
         return { ...e, status, standNumber: standNumber || e.standNumber };
@@ -1810,6 +2146,20 @@ class EventStore {
     });
     this.set('exhibitors', list);
     this.logAction('Expositores', `Expositor ${id} agora está ${status}`);
+  }
+
+  updatePitchCandidateStatus(
+    id: string,
+    status: OpportunityStatus | 'PENDENTE' | 'SELECIONADO' | 'APRESENTADO' | 'VENCEDOR' | 'REJEITADO'
+  ): void {
+    const list = this.getPitchCandidates().map((c) => {
+      if (c.id === id) {
+        return { ...c, status };
+      }
+      return c;
+    });
+    this.set('pitchCandidates', list);
+    this.logAction('Pitch Empresarial', `Candidatura ${id} actualizada para status: ${status}`);
   }
 
   // Pitch
@@ -1970,6 +2320,48 @@ class EventStore {
     this.set('sponsors', list);
     this.logAction('Patrocinadores', `Novo parceiro registado: ${sponsor.name}`);
     return newS;
+  }
+
+  // Sponsorship Opportunities Requests (Tornar-se Patrocinador)
+  getSponsorshipRequests(): SponsorshipRequest[] {
+    return this.get<SponsorshipRequest[]>('sponsorship_requests', initialSponsorshipRequests);
+  }
+
+  addSponsorshipRequest(req: Omit<SponsorshipRequest, 'id' | 'status' | 'submittedAt'>): SponsorshipRequest {
+    const id = `pat-${Date.now()}`;
+    const now = new Date();
+    const submittedAt = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newReq: SponsorshipRequest = {
+      ...req,
+      id,
+      status: 'Pendente',
+      submittedAt,
+    };
+    const list = [newReq, ...this.getSponsorshipRequests()];
+    this.set('sponsorship_requests', list);
+    this.logAction('Patrocínios', `Nova proposta de patrocínio recebida: ${req.companyName} (${req.tier})`);
+    return newReq;
+  }
+
+  updateSponsorshipRequestStatus(id: string, status: OpportunityStatus, notes?: string): void {
+    const list = this.getSponsorshipRequests().map((r) => {
+      if (r.id === id) {
+        return {
+          ...r,
+          status,
+          notes: notes !== undefined ? notes : r.notes,
+        };
+      }
+      return r;
+    });
+    this.set('sponsorship_requests', list);
+    this.logAction('Patrocínios', `Proposta de patrocínio ${id} actualizada para status: ${status}`);
+  }
+
+  deleteSponsorshipRequest(id: string): void {
+    const list = this.getSponsorshipRequests().filter((r) => r.id !== id);
+    this.set('sponsorship_requests', list);
+    this.logAction('Patrocínios', `Pedido de patrocínio ${id} removido`);
   }
 
   // Audit Logs
@@ -2272,6 +2664,123 @@ O sistema confirmou a integridade do circuito de notificação por email e grava
 
     return newAlert;
   }
+
+  // Payment Proof Submissions
+  getPaymentProofSubmissions(): PaymentProofSubmission[] {
+    return this.get<PaymentProofSubmission[]>('payment_proofs', initialPaymentProofs);
+  }
+
+  addPaymentProofSubmission(
+    data: Omit<PaymentProofSubmission, 'id' | 'submittedAt' | 'status'>
+  ): PaymentProofSubmission {
+    const list = this.getPaymentProofSubmissions();
+    const newProof: PaymentProofSubmission = {
+      ...data,
+      id: `COMP-${Date.now().toString().slice(-6)}`,
+      submittedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      status: 'PENDENTE',
+    };
+    const updated = [newProof, ...list];
+    this.set('payment_proofs', updated);
+
+    // If matches a registration, update that registration's paymentProofUrl
+    if (data.registrationId) {
+      const registrations = this.getRegistrations();
+      const targetReg = registrations.find((r) => r.id === data.registrationId);
+      if (targetReg) {
+        targetReg.paymentProofUrl = data.proofFileUrl;
+        targetReg.paymentProofName = data.proofFileName;
+        targetReg.status = 'EM_VERIFICACAO';
+        this.set('registrations', registrations);
+      }
+    } else {
+      // Try to find matching registration by phone or name
+      const registrations = this.getRegistrations();
+      const cleanPhone = data.phone.replace(/\D/g, '');
+      const match = registrations.find(
+        (r) =>
+          r.phone.replace(/\D/g, '').includes(cleanPhone.slice(-8)) ||
+          r.fullName.toLowerCase().trim() === data.fullName.toLowerCase().trim()
+      );
+      if (match) {
+        newProof.registrationId = match.id;
+        match.paymentProofUrl = data.proofFileUrl;
+        match.paymentProofName = data.proofFileName;
+        match.status = 'EM_VERIFICACAO';
+        this.set('registrations', registrations);
+        this.set('payment_proofs', updated);
+      }
+    }
+
+    this.logAction(
+      'Envio de Comprovativo',
+      `Comprovativo de pagamento de ${data.amountAoa.toLocaleString('pt-AO')} Kz enviado por ${data.fullName} via ${data.paymentMethod}`,
+      data.fullName
+    );
+    return newProof;
+  }
+
+  updatePaymentProofStatus(
+    id: string,
+    status: 'CONFIRMADO' | 'REJEITADO',
+    adminNotes?: string
+  ): void {
+    const list = this.getPaymentProofSubmissions();
+    const target = list.find((p) => p.id === id);
+    if (!target) return;
+
+    target.status = status;
+    if (adminNotes) target.adminNotes = adminNotes;
+    this.set('payment_proofs', list);
+
+    // If confirmed and linked to a registration, auto-confirm registration and issue ticket
+    if (status === 'CONFIRMADO' && target.registrationId) {
+      this.updateRegistrationStatus(target.registrationId, 'CONFIRMADO', 'Pagamento confirmado após validação do comprovativo.');
+    }
+
+    this.logAction(
+      'Validação de Comprovativo',
+      `Comprovativo ${id} de ${target.fullName} marcado como ${status}${adminNotes ? `: ${adminNotes}` : ''}`,
+      'Administrador Financeiro'
+    );
+  }
+
+  deletePaymentProofSubmission(id: string): void {
+    const list = this.getPaymentProofSubmissions().filter((p) => p.id !== id);
+    this.set('payment_proofs', list);
+    this.logAction('Eliminação de Comprovativo', `Comprovativo ${id} eliminado`, 'Administrador');
+  }
 }
+
+export const initialPaymentProofs: PaymentProofSubmission[] = [
+  {
+    id: 'COMP-7901',
+    fullName: 'Dr. Alberto Canhanga',
+    phone: '+244 923 456 789',
+    amountAoa: 35000,
+    paymentMethod: 'TRANSFERENCIA_BANCARIA',
+    proofFileUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+    proofFileName: 'comprovativo_bfa_alberto_canhanga.pdf',
+    notes: 'Pagamento efetuado via BFA Net para Café Experience Executivo.',
+    submittedAt: '2026-10-14 11:20',
+    status: 'CONFIRMADO',
+    adminNotes: 'Validado com extrato bancário oficial.',
+    registrationId: 'REG-7901',
+  },
+  {
+    id: 'COMP-7902',
+    fullName: 'Helena Cassoma',
+    phone: '+244 912 345 678',
+    amountAoa: 2000,
+    paymentMethod: 'MULTICAIXA_EXPRESS',
+    proofFileUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+    proofFileName: 'multicaixa_express_helena_92115262.jpg',
+    notes: 'Pagamento de certificado oficial da conferência.',
+    submittedAt: '2026-10-15 09:45',
+    status: 'CONFIRMADO',
+    adminNotes: 'Referência Multicaixa Express confirmada.',
+    registrationId: 'REG-7903',
+  },
+];
 
 export const eventStore = new EventStore();

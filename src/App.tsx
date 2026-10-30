@@ -15,10 +15,13 @@ import {
   GalleryItem,
   AuditLog,
   PitchEvaluation,
+  OpportunityStatus,
 } from './types';
 import { initialConferenceTracks, initialGallery } from './services/store';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { RegistrationAndPaymentSection } from './components/RegistrationAndPaymentSection';
+import { LocationSection } from './components/LocationSection';
 import { AboutSection } from './components/AboutSection';
 import { ConferenceSection } from './components/ConferenceSection';
 import { AgendaSection } from './components/AgendaSection';
@@ -228,10 +231,10 @@ export default function App() {
 
   const handleUpdateExhibitorStatus = (
     id: string,
-    status: 'APROVADO' | 'REJEITADO',
+    status: OpportunityStatus | 'APROVADO' | 'PENDENTE' | 'REJEITADO',
     stand?: string
   ) => {
-    eventStore.updateExhibitorStatus(id, status, stand);
+    eventStore.updateExhibitorStatus(id, status as any, stand);
     setExhibitors(eventStore.getExhibitors());
     setAuditLogs(eventStore.getAuditLogs());
   };
@@ -293,6 +296,17 @@ export default function App() {
           onOpenPitchForm={() => setIsPitchApplicationOpen(true)}
           onOpenSponsorModal={() => setIsSponsorModalOpen(true)}
         />
+
+        {/* Registration & Payment Section (Prompt Section 1, 2, 3, 4) */}
+        <RegistrationAndPaymentSection
+          settings={settings}
+          ticketTiers={ticketTiers}
+          onRegistrationCreated={handleRegistrationComplete}
+          onOpenTicketPass={(reg) => setActiveTicketForModal(reg)}
+        />
+
+        {/* Event Location & Google Maps Navigation (Mediateca Zé Dú - Cazenga) */}
+        <LocationSection settings={settings} />
 
         {/* About & Participant Journey */}
         <AboutSection />
@@ -379,6 +393,10 @@ export default function App() {
           preselectedTierId={preselectedTierId}
           onClose={() => setIsRegisterOpen(false)}
           onRegistrationComplete={handleRegistrationComplete}
+          onOpenTicketPass={(reg) => {
+            setIsRegisterOpen(false);
+            setActiveTicketForModal(reg);
+          }}
         />
       )}
 

@@ -13,6 +13,7 @@ import {
   Award,
   Image as ImageIcon,
   Loader2,
+  Shirt,
 } from 'lucide-react';
 import {
   generateQrDataUrl,
@@ -122,7 +123,7 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
               id="btn-download-ticket-pdf"
               onClick={handleDownloadPdf}
               disabled={isExportingPdf}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#9F1239] to-[#BE123C] hover:opacity-90 rounded-lg flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0152D9] to-[#0173EF] hover:opacity-90 rounded-lg flex items-center space-x-1 cursor-pointer disabled:opacity-50 shadow"
               title="Descarregar ingresso oficial em PDF (A5)"
             >
               {isExportingPdf ? (
@@ -203,10 +204,10 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
           className="rounded-2xl overflow-hidden border border-zinc-700/80 bg-zinc-950 text-white shadow-xl relative"
         >
           {/* Top banner */}
-          <div className="p-5 sm:p-6 bg-gradient-to-r from-[#3B0764] via-[#881337] to-[#BE123C] flex items-center justify-between border-b border-white/10">
+          <div className="p-5 sm:p-6 bg-gradient-to-r from-[#032877] via-[#0152D9] to-[#0173EF] flex items-center justify-between border-b border-white/15">
             <BrandLogo variant="compact" theme="dark" className="h-8 sm:h-9 w-auto" />
             <div className="text-right space-y-0.5">
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-sm">
+              <span className="px-2.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-[#F8D21C] text-[#032877] shadow-sm">
                 {tier.name}
               </span>
               <p className="text-[11px] text-white font-mono font-bold">
@@ -216,26 +217,26 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
           </div>
 
           {/* Ticket Body */}
-          <div className="p-6 space-y-5">
+          <div className="p-6 space-y-5 bg-[#021B54]">
             {/* Attendee Details: Mandatory Full Name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-zinc-800/80 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-[#0173EF]/30 pb-4">
               <div>
-                <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Titular da Credencial</p>
+                <p className="text-[11px] text-zinc-300 uppercase tracking-wider font-semibold">Titular da Credencial</p>
                 <h4 className="text-xl font-black text-white mt-0.5 leading-snug">
                   {registration.fullName}
                 </h4>
-                <p className="text-xs text-zinc-300 font-medium mt-1">
-                  {registration.jobTitle} · <span className="text-amber-400">{registration.company}</span>
+                <p className="text-xs text-zinc-200 font-medium mt-1">
+                  {registration.jobTitle} · <span className="text-[#F8D21C] font-semibold">{registration.company}</span>
                 </p>
-                <p className="text-[11px] text-zinc-400 font-mono mt-0.5">{registration.email}</p>
+                <p className="text-[11px] text-[#65A6F4] font-mono mt-0.5">{registration.email}</p>
               </div>
 
               <div className="space-y-1.5 sm:text-right">
                 <div>
-                  <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">Evento Oficial</p>
+                  <p className="text-[11px] text-zinc-300 uppercase tracking-wider font-semibold">Evento Oficial</p>
                   <p className="text-sm font-bold text-white">79.ª Edição do Café do Empreendedor</p>
-                  <p className="text-xs text-zinc-400">{settings.venueName} · {settings.city}</p>
-                  <p className="text-[11px] text-amber-400 font-medium">{settings.eventDateText}</p>
+                  <p className="text-xs text-zinc-300">{settings.venueName} · {settings.city}</p>
+                  <p className="text-[11px] text-[#F8D21C] font-bold">{settings.eventDateText} · 08h30</p>
                 </div>
 
                 <div className="pt-1 flex flex-wrap gap-1 justify-start sm:justify-end">
@@ -250,12 +251,33 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
                   </span>
 
                   {hasCertificateEntitlement && (
-                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
-                      <Award className="w-3 h-3 text-amber-400" />
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-[#0152D9]/40 text-[#65A6F4] border border-[#0173EF]">
+                      <Award className="w-3 h-3 text-[#F8D21C]" />
                       <span>Certificado Incluído</span>
                     </span>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* MANDATORY DRESS CODE SECTION IN INVITATION/TICKET WITH ICON */}
+            <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#032877] via-[#0152D9] to-[#0173EF] border-2 border-[#F8D21C] shadow-md flex items-center space-x-3 text-white">
+              <div className="w-10 h-10 rounded-lg bg-[#F8D21C] text-[#032877] flex items-center justify-center shrink-0 shadow">
+                <Shirt className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-[#F8D21C] text-[#032877]">
+                    OBRIGATÓRIO
+                  </span>
+                  <span className="text-[10px] font-bold text-blue-100">Mês da Saúde Mental · Laço Azul</span>
+                </div>
+                <p className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
+                  DRESS CODE: VESTIR AZUL — OBRIGATÓRIO
+                </p>
+                <p className="text-[10px] text-blue-100 leading-tight">
+                  Acesso ao evento condicionado ao uso de vestuário azul.
+                </p>
               </div>
             </div>
 
@@ -316,7 +338,7 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
             <button
               onClick={handleDownloadPdf}
               disabled={isExportingPdf}
-              className="px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#9F1239] to-[#BE123C] hover:opacity-90 rounded-xl flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0152D9] to-[#0173EF] hover:opacity-90 rounded-xl flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow"
             >
               {isExportingPdf ? (
                 <>
