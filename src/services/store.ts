@@ -1144,6 +1144,34 @@ export class EventStore {
       console.warn('Falha no envio da notificação:', err);
     });
 
+    // Asynchronously sync with PostgreSQL database
+    if (typeof window !== 'undefined') {
+      fetch('/api/registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: newReg.id,
+          ticketCode: newReg.ticketCode,
+          internalControlCode: newReg.internalControlCode,
+          ticketStatus: newReg.ticketStatus,
+          ticketTierId: newReg.ticketTierId,
+          fullName: newReg.fullName,
+          email: newReg.email,
+          phone: newReg.phone,
+          whatsapp: newReg.whatsapp,
+          company: newReg.company,
+          jobTitle: newReg.jobTitle,
+          areaOfExpertise: newReg.areaOfExpertise,
+          amountAoa: newReg.amountAoa,
+          paymentMethod: newReg.paymentMethod,
+          paymentReference: newReg.paymentReference,
+          status: newReg.status,
+          checkInStatus: newReg.checkInStatus,
+          notes: newReg.notes,
+        }),
+      }).catch(() => {});
+    }
+
     this.checkAndTriggerCapacityAlerts();
     return newReg;
   }
@@ -2130,6 +2158,26 @@ export class EventStore {
     const list = [newExhibitor, ...this.getExhibitors()];
     this.set('exhibitors', list);
     this.logAction('Expositores', `Nova candidatura de expositor: ${exhibitor.companyName}`);
+
+    // Asynchronously sync with PostgreSQL database
+    if (typeof window !== 'undefined') {
+      fetch('/api/exhibitors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: newExhibitor.id,
+          companyName: newExhibitor.companyName,
+          responsibleName: newExhibitor.responsibleName || newExhibitor.companyName,
+          sector: newExhibitor.sector || 'Geral',
+          productDescription: newExhibitor.productOrServiceToExpose || newExhibitor.description,
+          phone: newExhibitor.phone,
+          email: newExhibitor.email,
+          status: newExhibitor.status,
+          notes: newExhibitor.description,
+        }),
+      }).catch(() => {});
+    }
+
     return newExhibitor;
   }
 
@@ -2717,6 +2765,27 @@ O sistema confirmou a integridade do circuito de notificação por email e grava
       `Comprovativo de pagamento de ${data.amountAoa.toLocaleString('pt-AO')} Kz enviado por ${data.fullName} via ${data.paymentMethod}`,
       data.fullName
     );
+
+    // Asynchronously sync with PostgreSQL database
+    if (typeof window !== 'undefined') {
+      fetch('/api/payment-proofs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: newProof.id,
+          registrationId: newProof.registrationId || null,
+          fullName: newProof.fullName,
+          phone: newProof.phone,
+          amountAoa: newProof.amountAoa,
+          paymentMethod: newProof.paymentMethod,
+          proofFileUrl: newProof.proofFileUrl,
+          proofFileName: newProof.proofFileName,
+          status: newProof.status,
+          notes: newProof.notes || null,
+        }),
+      }).catch(() => {});
+    }
+
     return newProof;
   }
 

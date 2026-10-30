@@ -114,7 +114,7 @@ export const CertificatesPortalSection: React.FC<CertificatesPortalSectionProps>
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Helena Cassoma ou António Silva"
+                      placeholder="Ex: Manuel António da Silva"
                       value={confSearchName}
                       onChange={(e) => {
                         setConfSearchName(e.target.value);

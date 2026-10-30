@@ -5,21 +5,18 @@ import {
   TicketTier,
   Registration,
   Certificate,
-  ConferenceTrack,
   AgendaSession,
   Exhibitor,
   PitchCandidate,
   Sponsor,
-  Mentor,
   NetworkingContact,
-  GalleryItem,
   AuditLog,
-  PitchEvaluation,
   OpportunityStatus,
 } from './types';
 import { initialConferenceTracks, initialGallery } from './services/store';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { ConfirmedSpeakersSection } from './components/ConfirmedSpeakersSection';
 import { RegistrationAndPaymentSection } from './components/RegistrationAndPaymentSection';
 import { LocationSection } from './components/LocationSection';
 import { AboutSection } from './components/AboutSection';
@@ -27,10 +24,6 @@ import { ConferenceSection } from './components/ConferenceSection';
 import { AgendaSection } from './components/AgendaSection';
 import { CertificatesPortalSection } from './components/CertificatesPortalSection';
 import { ExhibitorsSection } from './components/ExhibitorsSection';
-import { PitchSection } from './components/PitchSection';
-import { StrategyRoomSection } from './components/StrategyRoomSection';
-import { SponsorsSection } from './components/SponsorsSection';
-import { NetworkingSection } from './components/NetworkingSection';
 import { GallerySection } from './components/GallerySection';
 import { Footer } from './components/Footer';
 import { RegistrationModal } from './components/RegistrationModal';
@@ -40,9 +33,7 @@ import { CertificateVerificationModal } from './components/CertificateVerificati
 import { TicketLookupModal } from './components/TicketLookupModal';
 import { ConferenceCertificatePaymentModal } from './components/ConferenceCertificatePaymentModal';
 import { StandBookingModal } from './components/StandBookingModal';
-import { PitchApplicationModal } from './components/PitchApplicationModal';
 import { SponsorProposalModal } from './components/SponsorProposalModal';
-import { JuryScoringModal } from './components/JuryScoringModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { TicketDeliveryChannelModal } from './components/TicketDeliveryChannelModal';
 import { CheckInStaffPortal } from './components/CheckInStaffPortal';
@@ -66,7 +57,6 @@ export default function App() {
     eventStore.getPitchCandidates()
   );
   const [sponsors, setSponsors] = useState<Sponsor[]>(() => eventStore.getSponsors());
-  const [mentors, setMentors] = useState<Mentor[]>(() => eventStore.getMentors());
   const [contacts, setContacts] = useState<NetworkingContact[]>(() =>
     eventStore.getNetworkingContacts()
   );
@@ -86,9 +76,7 @@ export default function App() {
   const [isTicketLookupOpen, setIsTicketLookupOpen] = useState(false);
   const [payingConferenceReg, setPayingConferenceReg] = useState<Registration | null>(null);
   const [isStandBookingOpen, setIsStandBookingOpen] = useState(false);
-  const [isPitchApplicationOpen, setIsPitchApplicationOpen] = useState(false);
   const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
-  const [activeJuryCandidate, setActiveJuryCandidate] = useState<PitchCandidate | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [deliveryRegistration, setDeliveryRegistration] = useState<Registration | null>(null);
   const [isStaffPortalOpen, setIsStaffPortalOpen] = useState(false);
@@ -157,36 +145,6 @@ export default function App() {
   const handleStandBookingSubmit = (exhibitorData: Omit<Exhibitor, 'id' | 'status'>) => {
     eventStore.addExhibitor(exhibitorData);
     setExhibitors(eventStore.getExhibitors());
-    setAuditLogs(eventStore.getAuditLogs());
-  };
-
-  // Pitch candidate application submission
-  const handlePitchApplicationSubmit = (
-    candidateData: Omit<PitchCandidate, 'id' | 'status' | 'evaluations' | 'averageScore'>
-  ) => {
-    eventStore.addPitchCandidate(candidateData);
-    setPitchCandidates(eventStore.getPitchCandidates());
-    setAuditLogs(eventStore.getAuditLogs());
-  };
-
-  // Jury evaluation submission
-  const handleJuryEvaluationSubmit = (
-    candidateId: string,
-    evaluation: Omit<PitchEvaluation, 'total'>
-  ) => {
-    eventStore.addPitchEvaluation(candidateId, evaluation);
-    setPitchCandidates(eventStore.getPitchCandidates());
-    setAuditLogs(eventStore.getAuditLogs());
-  };
-
-  // Mentorship session booking
-  const handleBookStrategySession = (
-    mentorId: string,
-    slotTime: string,
-    attendee: { name: string; email: string; phone: string; company: string; challenges: string }
-  ) => {
-    eventStore.bookStrategySession(mentorId, slotTime, attendee);
-    setMentors(eventStore.getMentors());
     setAuditLogs(eventStore.getAuditLogs());
   };
 
@@ -265,7 +223,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-[#F3F4F6] selection:bg-[#BE123C] selection:text-white">
+    <div className="min-h-screen bg-[#F0F6FE] text-[#032877] selection:bg-[#0173EF] selection:text-white">
       {/* Top Navigation */}
       <Navbar
         onOpenRegister={() => {
@@ -293,8 +251,15 @@ export default function App() {
             setIsRegisterOpen(true);
           }}
           onOpenStandBooking={() => setIsStandBookingOpen(true)}
-          onOpenPitchForm={() => setIsPitchApplicationOpen(true)}
           onOpenSponsorModal={() => setIsSponsorModalOpen(true)}
+        />
+
+        {/* Confirmed Speakers Section (Oradores Confirmados) */}
+        <ConfirmedSpeakersSection
+          onOpenRegister={() => {
+            setPreselectedTierId(ticketTiers[0]?.id);
+            setIsRegisterOpen(true);
+          }}
         />
 
         {/* Registration & Payment Section (Prompt Section 1, 2, 3, 4) */}
@@ -340,31 +305,6 @@ export default function App() {
           onOpenStandBooking={() => setIsStandBookingOpen(true)}
         />
 
-        {/* Pitch Empresarial */}
-        <PitchSection
-          candidates={pitchCandidates}
-          onOpenPitchApplication={() => setIsPitchApplicationOpen(true)}
-          onOpenJuryScoring={(cand) => setActiveJuryCandidate(cand)}
-        />
-
-        {/* Strategy Room & Mentorship */}
-        <StrategyRoomSection
-          mentors={mentors}
-          onBookSession={handleBookStrategySession}
-        />
-
-        {/* Sponsors & Partners */}
-        <SponsorsSection
-          sponsors={sponsors}
-          onOpenSponsorModal={() => setIsSponsorModalOpen(true)}
-        />
-
-        {/* Networking Directory */}
-        <NetworkingSection
-          contacts={contacts}
-          onAddContact={handleAddNetworkingContact}
-        />
-
         {/* Historical Photo Gallery */}
         <GallerySection items={initialGallery} />
       </main>
@@ -380,7 +320,6 @@ export default function App() {
         }}
         onNavigateToCertificates={() => handleNavigate('certificados')}
         onOpenStandBooking={() => setIsStandBookingOpen(true)}
-        onOpenPitchForm={() => setIsPitchApplicationOpen(true)}
         onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
@@ -478,30 +417,12 @@ export default function App() {
       )}
 
       {/* Pitch Application Modal */}
-      {isPitchApplicationOpen && (
-        <PitchApplicationModal
-          isOpen={isPitchApplicationOpen}
-          onClose={() => setIsPitchApplicationOpen(false)}
-          onSubmit={handlePitchApplicationSubmit}
-        />
-      )}
-
       {/* Sponsorship Inquiry Modal */}
       {isSponsorModalOpen && (
         <SponsorProposalModal
           isOpen={isSponsorModalOpen}
           onClose={() => setIsSponsorModalOpen(false)}
           onSubmit={handleSponsorProposalSubmit}
-        />
-      )}
-
-      {/* Jury Evaluation Panel Modal */}
-      {activeJuryCandidate && (
-        <JuryScoringModal
-          candidate={activeJuryCandidate}
-          isOpen={Boolean(activeJuryCandidate)}
-          onClose={() => setActiveJuryCandidate(null)}
-          onSubmitEvaluation={handleJuryEvaluationSubmit}
         />
       )}
 

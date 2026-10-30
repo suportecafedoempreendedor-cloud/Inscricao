@@ -212,7 +212,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 OBRIGATÓRIO
               </span>
               <span className="text-[11px] font-bold text-[#F9F9FB] flex items-center space-x-1">
-                <span>Mês da Saúde Mental</span>
+                <span>Elemento Simbólico</span>
                 <span className="text-[#F8D21C]">· Laço Azul</span>
               </span>
             </div>
@@ -220,7 +220,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               DRESS CODE: VESTIR AZUL — OBRIGATÓRIO
             </p>
             <p className="text-[11px] text-blue-100 leading-tight">
-              Todos os participantes devem comparecer vestidos de azul. Esta exigência não é opcional e visa celebrar a união e a saúde mental corporativa.
+              Todos os participantes devem comparecer vestidos de azul. Esta exigência não é opcional e visa a união visual e integração institucional do evento.
             </p>
           </div>
         </div>
@@ -518,7 +518,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   className="w-4 h-4 rounded text-[#0173EF] border-[#0173EF] bg-[#021B54] focus:ring-[#0173EF] mt-0.5 shrink-0"
                 />
                 <span className="text-zinc-200 leading-relaxed">
-                  Confirmo que li atentamente as informações oficiais do evento: <strong>79.ª Edição do Café do Empreendedor</strong>, tema <strong>"Empreendedorismo que Gera Resultados"</strong>, em <strong>27 de novembro de 2026</strong>, às <strong>08h30</strong>, na <strong>Mediateca Zé Dú — Cazenga</strong>, com <strong className="text-[#F8D21C]">DRESS CODE: VESTIR AZUL — OBRIGATÓRIO</strong> em alusão ao Mês da Saúde Mental (com laço azul simbólico).
+                  Confirmo que li atentamente as informações oficiais do evento: <strong>79.ª Edição do Café do Empreendedor</strong>, tema <strong>"Empreendedorismo que Gera Resultados"</strong>, em <strong>27 de novembro de 2026</strong>, às <strong>08h30</strong>, na <strong>Mediateca Zé Dú — Cazenga</strong>, com <strong className="text-[#F8D21C]">DRESS CODE: VESTIR AZUL — OBRIGATÓRIO</strong> (com laço azul simbólico).
                 </span>
               </label>
             </div>
@@ -820,7 +820,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     DRESS CODE: VESTIR AZUL — OBRIGATÓRIO
                   </p>
                   <p className="text-[11px] text-blue-100">
-                    Em alusão ao Mês da Saúde Mental (com laço azul simbólico).
+                    Compareça vestido de azul (com laço azul simbólico oficial).
                   </p>
                 </div>
               </div>

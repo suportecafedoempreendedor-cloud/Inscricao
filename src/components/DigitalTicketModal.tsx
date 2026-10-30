@@ -270,7 +270,7 @@ export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-[#F8D21C] text-[#032877]">
                     OBRIGATÓRIO
                   </span>
-                  <span className="text-[10px] font-bold text-blue-100">Mês da Saúde Mental · Laço Azul</span>
+                  <span className="text-[10px] font-bold text-blue-100">Elemento Simbólico · Laço Azul</span>
                 </div>
                 <p className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
                   DRESS CODE: VESTIR AZUL — OBRIGATÓRIO

@@ -235,16 +235,23 @@ export type OpportunityStatus = 'Pendente' | 'Em análise' | 'Aprovado' | 'Recus
 export interface Exhibitor {
   id: string;
   companyName: string;
+  responsibleName?: string;
   sector: string;
+  productOrServiceToExpose?: string;
   description: string;
   standNumber: string;
   logoUrl?: string;
   website?: string;
   email: string;
   phone: string;
+  province?: string;
+  municipality?: string;
+  feeConfirmed?: boolean;
+  amountAoa?: number;
   products: string[];
   status: OpportunityStatus | 'APROVADO' | 'PENDENTE' | 'REJEITADO';
   featured?: boolean;
+  createdAt?: string;
 }
 
 export interface PitchEvaluation {

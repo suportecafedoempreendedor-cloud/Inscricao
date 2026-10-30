@@ -26,7 +26,6 @@ interface FooterProps {
   onOpenVerifyModal: () => void;
   onNavigateToCertificates: () => void;
   onOpenStandBooking: () => void;
-  onOpenPitchForm: () => void;
   onOpenAdmin: () => void;
 }
 
@@ -37,7 +36,6 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenVerifyModal,
   onNavigateToCertificates,
   onOpenStandBooking,
-  onOpenPitchForm,
   onOpenAdmin,
 }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -55,15 +53,15 @@ export const Footer: React.FC<FooterProps> = ({
     },
     {
       q: 'A data e o local da 79.ª Edição já são definitivos?',
-      a: 'A data específica e o centro de convenções em Luanda estão a ser alinhados pela comissão organizadora para o 1.º Trimestre e serão anunciados em todos os canais oficiais e actualizados em tempo real nesta plataforma.',
+      a: 'Sim, a 79.ª Edição realiza-se no dia 27 de Novembro de 2026, às 08h30, na Mediateca Zé Dú — Cazenga, Luanda.',
     },
     {
-      q: 'Como funciona a selecção para o Pitch Empresarial?',
-      a: 'Startups e empreendedores submetem o seu modelo de negócio através do formulário de candidatura. Os projectos selecionados apresentam ao vivo no auditório principal com cronómetro de 3 minutos e avaliação pelo júri executivo.',
+      q: 'Como funciona a inscrição para ser Expositor no evento?',
+      a: 'O valor de participação como expositor é de 25.000 Kz e inclui uma mesa para exposição, uma cadeira e um pitch empresarial de 1 minuto para apresentar a sua marca, produtos ou serviços ao público.',
     },
     {
-      q: 'Quais os requisitos para reservar um stand na feira?',
-      a: 'Empresas de todos os sectores podem solicitar a reserva de stand. A comissão de feira valida o perfil e atribui a localização correspondente no pavilhão de exposições.',
+      q: 'Quais os requisitos para reservar o espaço de expositor?',
+      a: 'Empresas e marcas de todos os sectores podem solicitar a inscrição através do botão "QUERO SER EXPOSITOR". A equipa da organização valida a proposta e entra em contacto para confirmação.',
     },
   ];
 

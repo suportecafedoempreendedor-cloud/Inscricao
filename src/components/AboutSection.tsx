@@ -50,7 +50,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     {
       value: '100%',
       label: 'Foco Comercial & Negócios',
-      sub: 'Stands, pitch empresarial e parcerias estratégicas',
+      sub: 'Área de expositores, feira comercial e parcerias estratégicas',
       color: 'from-[#DC1037] to-rose-600',
       icon: TrendingUp,
       border: 'border-rose-500/30',
@@ -66,20 +66,20 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     {
       value: '8H',
       label: 'Duração da Imersão',
-      sub: 'Experiência contínua das 08h00 às 16h00 em Luanda',
+      sub: 'Experiência contínua das 08h30 às 16h30 em Luanda',
       color: 'from-[#67206D] to-indigo-600',
       icon: Clock,
       border: 'border-purple-500/30',
     },
   ];
 
-  // Section 7: Mais do que um evento (4 Cartões Interactivos de Experiências)
+  // Section 7: Mais do que um evento (Cartões Interactivos de Experiências)
   const experiences = [
     {
       id: '01',
       title: 'CONFERÊNCIA',
       tagline: 'Conhecimento de Alto Impacto',
-      desc: 'Quatro painéis dedicados aos pilares essenciais do crescimento empresarial, com debates aprofundados e casos reais de Angola.',
+      desc: 'Quatro painéis dedicados aos pilares essenciais do crescimento empresarial: RH, Negócios, Marketing e Finanças, com debates aprofundados e casos reais de Angola.',
       img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80',
       badge: '4 Painéis Especializados',
       actionLabel: 'Explorar Conferência',
@@ -89,39 +89,15 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     },
     {
       id: '02',
-      title: 'SALA DE ESTRATÉGIA',
-      tagline: 'Mentoria & Aconselhamento Prático',
-      desc: 'Um ambiente de aprendizagem aplicada, diagnóstico empresarial e construção de soluções estratégicas com consultores sénior.',
-      img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
-      badge: 'Sessões One-on-One',
-      actionLabel: 'Agendar Sessão',
-      action: () => handleScrollTo('sala-estrategia'),
-      borderColor: 'hover:border-amber-500/60',
-      accentBg: 'bg-[#FFC928] text-black',
-    },
-    {
-      id: '03',
-      title: 'FEIRA DE NEGÓCIOS',
-      tagline: 'Vitrina de Marcas & Networking',
-      desc: 'Um espaço vibrante onde empresas e empreendedores apresentam produtos, serviços e inovações a um público qualificado.',
+      title: 'FEIRA DE EXPOSITORES',
+      tagline: 'Vitrina de Marcas & Conexões Comerciais',
+      desc: 'Um espaço moderno onde marcas apresentam produtos e serviços por 25.000 Kz com mesa, cadeira e pitch de 1 minuto perante um público qualificado.',
       img: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
-      badge: 'Área de Expositores',
-      actionLabel: 'Reservar um Stand',
+      badge: 'Área de Expositores (25.000 Kz)',
+      actionLabel: 'Quero Ser Expositor',
       action: onOpenStandBooking || (() => handleScrollTo('expositores')),
       borderColor: 'hover:border-rose-500/60',
       accentBg: 'bg-[#B20D64]',
-    },
-    {
-      id: '04',
-      title: 'PITCH EMPRESARIAL',
-      tagline: 'Palco de Ideias perante Investidores',
-      desc: '5 minutos para apresentar o seu projecto a empresários, especialistas e potenciais parceiros com capacidade de alavancar o seu negócio.',
-      img: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
-      badge: 'Competição com Júri',
-      actionLabel: 'Inscrever Projecto',
-      action: onOpenPitchForm || (() => handleScrollTo('pitch')),
-      borderColor: 'hover:border-red-500/60',
-      accentBg: 'bg-[#DC1037]',
     },
   ];
 
@@ -135,7 +111,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
       textColor: 'text-zinc-950',
       btnColor: 'bg-black text-white hover:bg-zinc-800',
       icon: Ticket,
-      action: onOpenRegister || (() => handleScrollTo('ingressos')),
+      action: onOpenRegister || (() => handleScrollTo('inscricoes')),
       actionText: 'Inscrever Agora',
     },
     {
@@ -151,25 +127,25 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     },
     {
       id: 'como-chegar',
-      title: 'COMO CHEGAR',
-      desc: 'Informações detalhadas sobre localização, acessos, parque de estacionamento e credenciamento em Luanda.',
+      title: 'LOCALIZAÇÃO',
+      desc: 'Mediateca Zé Dú — Cazenga, Luanda. Acessos, orientações e parque de estacionamento no local.',
       colorBg: 'bg-[#67206D] text-white',
       textColor: 'text-white',
       btnColor: 'bg-white text-[#67206D] hover:bg-zinc-100',
       icon: MapPin,
-      action: () => handleScrollTo('sobre'),
-      actionText: 'Localização',
+      action: () => handleScrollTo('localizacao'),
+      actionText: 'Como Chegar',
     },
     {
-      id: 'networking',
-      title: 'NETWORKING',
-      desc: 'Oportunidades de conexão intencional, directório de participantes e trocas bilaterais de negócios.',
-      colorBg: 'bg-[#DC1037] text-white',
+      id: 'expositores',
+      title: 'EXPOSITORES',
+      desc: 'Espaço comercial com mesa, cadeira e apresentação da sua empresa ao público do evento.',
+      colorBg: 'bg-[#0152D9] text-white',
       textColor: 'text-white',
-      btnColor: 'bg-white text-[#DC1037] hover:bg-zinc-100',
-      icon: Users,
-      action: () => handleScrollTo('networking'),
-      actionText: 'Conectar',
+      btnColor: 'bg-white text-[#0152D9] hover:bg-zinc-100',
+      icon: Store,
+      action: onOpenStandBooking || (() => handleScrollTo('expositores')),
+      actionText: 'Ver Vagas',
     },
   ];
 
@@ -252,8 +228,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             </p>
           </div>
 
-          {/* 4 Interactive Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 2 Interactive Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
             {experiences.map((exp) => (
               <div
                 key={exp.id}

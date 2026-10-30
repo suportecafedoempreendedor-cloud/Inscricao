@@ -150,7 +150,7 @@ export const TicketDeliveryChannelModal: React.FC<TicketDeliveryChannelModalProp
               DRESS CODE: VESTIR AZUL — OBRIGATÓRIO
             </p>
             <p className="text-[11px] text-blue-100 leading-tight">
-              Apresente-se no dia 27 de novembro de 2026 às 08h30 na Mediateca Zé Dú vestido de azul em prol do Mês da Saúde Mental.
+              Apresente-se no dia 27 de novembro de 2026 às 08h30 na Mediateca Zé Dú vestido de azul com o laço azul oficial.
             </p>
           </div>
         </div>

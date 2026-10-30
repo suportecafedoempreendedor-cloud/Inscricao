@@ -16,6 +16,7 @@ import {
   Search,
   QrCode,
   MapPin,
+  Mic,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -42,13 +43,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'inicio', label: 'Início', icon: Sparkles },
     { id: 'inscricoes', label: 'Inscrições & Pagamento', icon: Ticket },
+    { id: 'oradores', label: 'Oradores', icon: Mic },
     { id: 'localizacao', label: 'Localização', icon: MapPin },
     { id: 'sobre', label: 'Sobre', icon: Layers },
     { id: 'conferencia', label: 'Conferência', icon: Briefcase },
     { id: 'agenda', label: 'Agenda', icon: Calendar },
     { id: 'certificados', label: 'Certificados', icon: Award },
     { id: 'expositores', label: 'Expositores', icon: Layers },
-    { id: 'pitch', label: 'Pitch', icon: Sparkles },
     { id: 'contactos', label: 'Contactos', icon: Phone },
   ];
 
@@ -58,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0B0B10]/95 backdrop-blur-md border-b border-white/10 transition-all">
+    <header className="sticky top-0 z-40 bg-[#032877]/95 backdrop-blur-md border-b border-[#0173EF]/30 transition-all text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Official Logo */}
@@ -79,8 +80,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => handleNavClick(item.id)}
                   className={`px-2.5 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
                     isActive
-                      ? 'text-[#F59E0B] border-b-2 border-[#F59E0B]'
-                      : 'text-zinc-300 hover:text-white hover:border-b-2 hover:border-zinc-500'
+                      ? 'text-[#F8D21C] border-b-2 border-[#F8D21C]'
+                      : 'text-blue-100 hover:text-white hover:border-b-2 hover:border-[#65A6F4]'
                   }`}
                 >
                   {item.label}
@@ -93,47 +94,47 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden lg:flex items-center space-x-2">
             <button
               onClick={onOpenVerifyModal}
-              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded-lg transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-blue-100 hover:text-white border border-[#0173EF]/40 hover:bg-[#0152D9]/40 rounded-lg transition-colors cursor-pointer"
               title="Validação Pública de Certificados"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#F8D21C]" />
               <span>Validar Certificado</span>
             </button>
 
             <button
               onClick={onOpenLookupTicket}
-              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded-lg transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-blue-100 hover:text-white border border-[#0173EF]/40 hover:bg-[#0152D9]/40 rounded-lg transition-colors cursor-pointer"
               title="Consultar o seu ingresso com código"
             >
-              <Search className="w-3.5 h-3.5 text-rose-400" />
+              <Search className="w-3.5 h-3.5 text-[#65A6F4]" />
               <span>Consultar Ingresso</span>
             </button>
 
             {onOpenStaffPortal && (
               <button
                 onClick={onOpenStaffPortal}
-                className="flex items-center space-x-1 px-2.5 py-2 text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-950/40 border border-emerald-700/60 hover:border-emerald-500 rounded-lg transition-colors"
+                className="flex items-center space-x-1 px-2.5 py-2 text-xs font-semibold text-white bg-[#0173EF]/30 hover:bg-[#0173EF]/50 border border-[#65A6F4]/60 rounded-lg transition-colors cursor-pointer"
                 title="Portaria & Controlo de Entradas no Dia do Evento"
               >
-                <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                <QrCode className="w-3.5 h-3.5 text-[#F8D21C]" />
                 <span>Portaria</span>
               </button>
             )}
 
             <button
               onClick={onOpenAdmin}
-              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded-lg transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-2 text-xs font-medium text-blue-100 hover:text-white border border-[#0173EF]/40 hover:bg-[#0152D9]/40 rounded-lg transition-colors cursor-pointer"
               title="Área Administrativa e Validação de Check-In"
             >
-              <Shield className="w-3.5 h-3.5 text-[#F59E0B]" />
+              <Shield className="w-3.5 h-3.5 text-[#F8D21C]" />
               <span>Gestão</span>
             </button>
 
             <button
               onClick={onOpenRegister}
-              className="flex items-center space-x-1.5 px-3.5 py-2 text-xs font-bold text-white rounded-lg bg-gradient-to-r from-[#9F1239] via-[#BE123C] to-[#881337] hover:from-[#BE123C] hover:to-[#9F1239] shadow-md shadow-rose-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center space-x-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider text-[#032877] rounded-lg bg-[#F8D21C] hover:bg-amber-300 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] border border-white cursor-pointer"
             >
-              <Ticket className="w-3.5 h-3.5" />
+              <Ticket className="w-3.5 h-3.5 text-[#032877]" />
               <span>Fazer Inscrição</span>
             </button>
           </div>
@@ -142,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-2 lg:hidden">
             <button
               onClick={onOpenRegister}
-              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-bold text-white rounded-lg bg-[#BE123C]"
+              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-black uppercase text-[#032877] rounded-lg bg-[#F8D21C] cursor-pointer"
             >
               <Ticket className="w-3.5 h-3.5" />
               <span>Inscrição</span>
@@ -150,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-zinc-400 hover:text-white focus:outline-none"
+              className="p-2 text-blue-200 hover:text-white focus:outline-none cursor-pointer"
               aria-label="Abrir menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -161,29 +162,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#0F0F18] border-b border-zinc-800 px-4 pt-3 pb-6 space-y-3">
+        <div className="lg:hidden bg-[#021B54] border-b border-[#0173EF]/30 px-4 pt-3 pb-6 space-y-3">
           <div className="grid grid-cols-2 gap-2">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className="flex items-center space-x-2 px-3 py-2 text-left text-xs font-medium text-zinc-200 hover:bg-zinc-800/60 rounded-md"
+                className="flex items-center space-x-2 px-3 py-2 text-left text-xs font-medium text-blue-100 hover:bg-[#0152D9]/40 rounded-md"
               >
-                <item.icon className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <item.icon className="w-3.5 h-3.5 text-[#F8D21C]" />
                 <span>{item.label}</span>
               </button>
             ))}
           </div>
 
-          <div className="pt-3 border-t border-zinc-800 flex flex-col space-y-2">
+          <div className="pt-3 border-t border-[#0173EF]/30 flex flex-col space-y-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenRegister();
               }}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 text-xs font-bold text-white rounded-lg bg-gradient-to-r from-[#9F1239] to-[#BE123C]"
+              className="w-full flex items-center justify-center space-x-2 py-2.5 text-xs font-black uppercase tracking-wider text-[#032877] rounded-lg bg-[#F8D21C] shadow"
             >
-              <Ticket className="w-4 h-4" />
+              <Ticket className="w-4 h-4 text-[#032877]" />
               <span>Fazer Inscrição no Evento</span>
             </button>
 
@@ -193,9 +194,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenLookupTicket();
                 }}
-                className="flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold text-zinc-300 border border-zinc-700 rounded-lg hover:bg-zinc-800"
+                className="flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold text-blue-100 border border-[#0173EF]/40 rounded-lg hover:bg-[#0152D9]/40"
               >
-                <Search className="w-3.5 h-3.5 text-rose-400" />
+                <Search className="w-3.5 h-3.5 text-[#65A6F4]" />
                 <span>Consultar Ingresso</span>
               </button>
 
@@ -204,9 +205,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenVerifyModal();
                 }}
-                className="flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold text-zinc-300 border border-zinc-700 rounded-lg hover:bg-zinc-800"
+                className="flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold text-blue-100 border border-[#0173EF]/40 rounded-lg hover:bg-[#0152D9]/40"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#F8D21C]" />
                 <span>Validar Certificado</span>
               </button>
             </div>
@@ -217,9 +218,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenStaffPortal();
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-2 text-xs font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-700/60 rounded-lg hover:bg-emerald-900/60"
+                className="w-full flex items-center justify-center space-x-2 py-2 text-xs font-bold text-white bg-[#0173EF]/30 border border-[#65A6F4]/60 rounded-lg hover:bg-[#0173EF]/50"
               >
-                <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                <QrCode className="w-3.5 h-3.5 text-[#F8D21C]" />
                 <span>Portaria & Validação de Ingressos (Check-in)</span>
               </button>
             )}
@@ -229,9 +230,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenAdmin();
               }}
-              className="w-full flex items-center justify-center space-x-2 py-2 text-xs font-semibold text-zinc-400 border border-zinc-800 rounded-lg hover:bg-zinc-800"
+              className="w-full flex items-center justify-center space-x-2 py-2 text-xs font-semibold text-blue-200 border border-[#0173EF]/30 rounded-lg hover:bg-[#0152D9]/30"
             >
-              <Shield className="w-3.5 h-3.5 text-[#F59E0B]" />
+              <Shield className="w-3.5 h-3.5 text-[#F8D21C]" />
               <span>Painel Administrativo & Gestão</span>
             </button>
           </div>
